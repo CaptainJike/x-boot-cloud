@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.framework</groupId>
+        <artifactId>x-boot-cloud</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <modules>
+        <module>admin-api</module>
+        <module>app-api</module>
+    </modules>
+
+    <artifactId>x-boot-api</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        x-boot-api系统接口
+    </description>
+
+</project>

@@ -1,0 +1,3 @@
+xDubboExceptionFilter=io.github.framework.dubbo.filter.XBootDubboExceptionFilter
+consumerContext=io.github.framework.dubbo.filter.ConsumerContextFilter
+providerContext=io.github.framework.dubbo.filter.ProviderContextFilter

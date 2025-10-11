@@ -1,0 +1,2 @@
+io.github.framework.crud.config.BaseMybatisPlusAutoConfiguration
+io.github.framework.crud.config.BaseDynamicDataSourceAutoConfiguration

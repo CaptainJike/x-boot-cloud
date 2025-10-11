@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>io.github.framework</groupId>
+        <artifactId>x-boot-modules</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <groupId>io.github.module</groupId>
+    <artifactId>oss</artifactId>
+    <description>文件上传下载服务</description>
+
+    <modules>
+        <module>oss-facade</module>
+        <module>oss-service</module>
+    </modules>
+
+    <properties>
+        <!-- 如果实际开发使用的是JDK 21，则下面改成'21' -->
+        <java.version>17</java.version>
+    </properties>
+</project>

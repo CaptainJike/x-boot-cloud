@@ -1,0 +1,45 @@
+package io.github.module.appapi.config;
+
+import io.github.framework.core.props.BaseProperties;
+import io.github.module.appapi.interceptor.DefaultSaTokenParseInterceptor;
+import cn.dev33.satoken.interceptor.SaInterceptor;
+import cn.dev33.satoken.stp.StpUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+
+/**
+ * 将自定义拦截器加入到拦截器队列中
+ */
+@Configuration
+@RequiredArgsConstructor
+public class CustomInterceptorConfiguration implements WebMvcConfigurer {
+
+    private final BaseProperties baseProperties;
+
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        /*
+        1. 通用请求头解析，设定用户、租户上下文
+         */
+        registry
+                .addInterceptor(new DefaultSaTokenParseInterceptor())
+                .addPathPatterns("/**");
+
+        /*
+        2. 路由拦截器, 使几乎所有接口都需要登录
+        放行接口请在配置文件的 x.security.exclude-routes 中设置
+
+        @see https://sa-token.cc/doc.html#/use/route-check
+         */
+        registry
+                .addInterceptor(new SaInterceptor(
+                        handler -> StpUtil.checkLogin()
+                ))
+                .addPathPatterns("/**")
+                .excludePathPatterns(baseProperties.getSecurity().getExcludeRoutes());
+    }
+}

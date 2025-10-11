@@ -1,0 +1,3 @@
+io.github.framework.core.config.BasePropertiesAutoConfiguration
+io.github.framework.core.config.AdaptHistoryVersionAutoConfiguration
+io.github.framework.core.config.StaticMethodAutoConfiguration

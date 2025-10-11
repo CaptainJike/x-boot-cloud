@@ -1,0 +1,31 @@
+spring:
+  application:
+    # 微服务应用名
+    name: admin-api
+  cloud:
+    nacos:
+      discovery:
+        # 注册中心地址
+        server-addr: ${NACOS_DISCOVERY_SERVER_ADDR:127.0.0.1:8848}
+        # 注册中心命名空间
+        namespace: ${NACOS_DISCOVERY_NAMESPACE:}
+        # 注册中心分组
+        group: ${NACOS_DISCOVERY_GROUP:DEFAULT_GROUP}
+      config:
+        # 配置中心地址
+        server-addr: ${NACOS_CONFIG_SERVER_ADDR:127.0.0.1:8848}
+        # 配置中心命名空间
+        namespace: ${NACOS_CONFIG_NAMESPACE:}
+        # 配置中心分组
+        group: ${NACOS_CONFIG_GROUP:DEFAULT_GROUP}
+  # 使用 Spring Cloud 官方标准 spring.config.import 来拉取配置；传统的 shared-configs 已进入废弃计划
+  config:
+    import:
+      - nacos:COMMON.yml?group=${spring.cloud.nacos.config.group}&refreshEnabled=false
+      - nacos:KNIFE4J.yml?group=${spring.cloud.nacos.config.group}&refreshEnabled=false
+      - nacos:REDIS.yml?group=${spring.cloud.nacos.config.group}&refreshEnabled=false
+      - nacos:SA-TOKEN.yml?group=${spring.cloud.nacos.config.group}&refreshEnabled=false
+      - nacos:DUBBO.yml?group=${spring.cloud.nacos.config.group}&refreshEnabled=false
+      # 兼容老服务名的微服务配置
+      - nacos:saas-api.yml?group=${spring.cloud.nacos.config.group}&refreshEnabled=false
+      - nacos:${spring.application.name}.yml?group=${spring.cloud.nacos.config.group}&refreshEnabled=false
