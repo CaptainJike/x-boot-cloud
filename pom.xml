@@ -34,11 +34,13 @@
 
         <!-- Spring Cloud Alibaba versions -->
         <spring-cloud-alibaba.version>2023.0.3.3</spring-cloud-alibaba.version>
-        <dubbo.version>3.3.5</dubbo.version>
+        <dubbo.version>3.3.6</dubbo.version>
         <nacos-client.vesion>2.1.0</nacos-client.vesion>
 
         <!-- 3rd-party versions -->
         <lombok.version>1.18.42</lombok.version>
+        <logback-core.version>1.5.19</logback-core.version>
+        <undertow-core.version>2.3.20.Final</undertow-core.version>
         <slf4j.version>2.0.17</slf4j.version>
         <hutool.version>5.8.40</hutool.version>
         <sa-token.version>1.44.0</sa-token.version>
@@ -102,6 +104,18 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback-core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+            <version>${undertow-core.version}</version>
         </dependency>
 
         <dependency>
