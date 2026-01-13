@@ -198,7 +198,7 @@ public class SysUserService {
     public void adminDelete(Collection<Long> ids) {
         log.info("[后台管理-删除后台用户] >> 入参={}", ids);
         preDeleteCheck(ids);
-        sysUserMapper.deleteByIds(ids);
+        sysUserMapper.deleteBatchIds(ids);
     }
 
     /**

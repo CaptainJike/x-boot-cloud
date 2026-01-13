@@ -107,7 +107,7 @@ public class OssFileInfoService {
         }
 
         // 2. 删除文件记录
-        ossFileInfoMapper.deleteByIds(ids);
+        ossFileInfoMapper.deleteBatchIds(ids);
     }
 
     /**
