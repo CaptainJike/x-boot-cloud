@@ -28,6 +28,7 @@
         <module>x-boot-starter-tenant</module>
         <module>x-boot-starter-test</module>
         <module>x-boot-starter-web</module>
+        <module>x-boot-starter-ai</module>
         <module>x-boot-job-core</module>
     </modules>
 </project>

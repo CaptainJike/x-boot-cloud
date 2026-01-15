@@ -24,14 +24,6 @@
 
     <dependencies>
         <!-- 引入其他微服务模块 -->
-
-
-        <!-- 脚手架starter -->
-        <dependency>
-            <groupId>io.github.framework</groupId>
-            <artifactId>x-boot-core</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>io.github.framework</groupId>
             <artifactId>x-boot-starter-cloud</artifactId>

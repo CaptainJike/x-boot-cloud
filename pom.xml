@@ -95,6 +95,8 @@
         <groovy.version>4.0.28</groovy.version>
 
         <jackson-core.version>2.20.1</jackson-core.version>
+
+        <milvus.version>2.6.12</milvus.version>
     </properties>
 
     <!-- 全局使用 -->
@@ -240,6 +242,12 @@
             <dependency>
                 <groupId>io.github.framework</groupId>
                 <artifactId>x-boot-starter-web</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.framework</groupId>
+                <artifactId>x-boot-starter-ai</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -481,9 +489,24 @@
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-webflux</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-validation</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
+
+            <!-- 集成AI相关的引入 -->
+            <dependency>
+                <groupId>io.milvus</groupId>
+                <artifactId>milvus-sdk-java</artifactId>
+                <version>${milvus.version}</version>
+            </dependency>
+
+
 
             <!-- Spring Boot & Cloud dependencies -->
             <dependency>

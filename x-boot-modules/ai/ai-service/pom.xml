@@ -6,59 +6,60 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>io.github.framework</groupId>
-        <artifactId>x-boot-api</artifactId>
+        <groupId>io.github.module</groupId>
+        <artifactId>ai</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <groupId>io.github.module</groupId>
-    <artifactId>admin-api</artifactId>
-    <description>后台管理HTTP-API</description>
+    <artifactId>ai-service</artifactId>
 
     <properties>
-        <!-- 如果实际开发使用的是JDK 21，则下面改成'21' -->
-        <java.version>17</java.version>
+        <!-- 引入其他服务模块 -->
     </properties>
 
     <dependencies>
-        <!-- 引入其他微服务模块 -->
+        <!-- 实现业务服务 -->
         <dependency>
             <groupId>io.github.module</groupId>
-            <artifactId>sys-facade</artifactId>
+            <artifactId>ai-facade</artifactId>
             <version>${revision}</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.github.module</groupId>
-            <artifactId>oss-facade</artifactId>
-            <version>${revision}</version>
-        </dependency>
+
+        <!-- 引入其他服务模块 -->
 
 
         <!-- 脚手架starter -->
         <dependency>
             <groupId>io.github.framework</groupId>
+            <artifactId>x-boot-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.framework</groupId>
+            <artifactId>x-boot-starter-ai</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.framework</groupId>
             <artifactId>x-boot-starter-cloud</artifactId>
+            <exclusions>
+                <!-- 业务微服务里用不到 Sentinel -->
+                <exclusion>
+                    <groupId>com.alibaba.cloud</groupId>
+                    <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.framework</groupId>
+            <artifactId>x-boot-starter-crud</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.github.framework</groupId>
             <artifactId>x-boot-starter-dubbo</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.framework</groupId>
-            <artifactId>x-boot-starter-knife4j</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.framework</groupId>
-            <artifactId>x-boot-starter-redis</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.framework</groupId>
-            <artifactId>x-boot-starter-satoken</artifactId>
         </dependency>
 
         <dependency>
@@ -72,10 +73,24 @@
             <artifactId>x-boot-starter-web</artifactId>
         </dependency>
 
+
         <!-- 这里写其他第三方依赖 -->
     </dependencies>
 
     <build>
+        <!-- 支持 mybatis XML 放置在 java 包下 -->
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <!-- Spring Boot 打包插件 -->
             <plugin>

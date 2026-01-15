@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <module>blank</module>
+        <module>ai</module>
         <module>oss</module>
         <module>sys</module>
     </modules>
