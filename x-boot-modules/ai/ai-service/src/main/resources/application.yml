@@ -1,7 +1,7 @@
 spring:
   application:
     # 微服务应用名
-    name: blank-service
+    name: ai-service
   cloud:
     nacos:
       discovery:

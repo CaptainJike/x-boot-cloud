@@ -1,4 +1,4 @@
-package io.github.test;
+package io.github.sys.test;
 
 import io.github.framework.core.constant.BaseConstant;
 import io.github.framework.core.context.TenantContext;

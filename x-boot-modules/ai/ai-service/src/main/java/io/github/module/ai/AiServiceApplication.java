@@ -1,0 +1,15 @@
+package io.github.module.ai;
+
+import io.github.framework.crud.annotation.EnableInitHikariPoolAtStartup;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+
+@EnableInitHikariPoolAtStartup
+@SpringBootApplication
+public class AiServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(AiServiceApplication.class, args);
+    }
+
+}
