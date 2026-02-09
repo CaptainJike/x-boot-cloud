@@ -1,0 +1,7 @@
+io.github.framework.web.listener.LaunchEventListener
+io.github.framework.web.config.DefaultWebMvcAutoConfiguration
+io.github.framework.web.config.GlobalWebExceptionHandlerAutoConfiguration
+io.github.framework.web.config.JacksonExtendAutoConfiguration
+io.github.framework.web.config.MessageConverterAutoConfiguration
+io.github.framework.web.config.XssAutoConfiguration
+io.github.framework.web.aspect.WebLoggingAspect
