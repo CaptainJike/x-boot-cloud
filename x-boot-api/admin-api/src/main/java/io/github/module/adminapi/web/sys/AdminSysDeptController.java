@@ -36,14 +36,14 @@ public class AdminSysDeptController {
     private SysDeptFacade sysDeptFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "列表")
     @GetMapping(value = "/sys/depts")
     public ApiResult<List<SysDeptBO>> list() {
         return ApiResult.data(sysDeptFacade.adminList());
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "详情")
     @GetMapping(value = "/sys/depts/{id}")
     public ApiResult<SysDeptBO> getById(@PathVariable("id") Long id) {
@@ -51,7 +51,7 @@ public class AdminSysDeptController {
     }
 
     @SysLog(value = "新增部门")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE, orRole = "SuperAdmin")
     @Operation(summary = "新增")
     @PostMapping(value = "/sys/depts")
     public ApiResult<Void> insert(@RequestBody @Valid AdminInsertOrUpdateSysDeptDTO dto) {
@@ -61,7 +61,7 @@ public class AdminSysDeptController {
     }
 
     @SysLog(value = "编辑部门")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE, orRole = "SuperAdmin")
     @Operation(summary = "编辑")
     @PutMapping(value = "/sys/depts/{id}")
     public ApiResult<Void> update(@PathVariable("id") Long id, @RequestBody @Valid AdminInsertOrUpdateSysDeptDTO dto) {
@@ -72,7 +72,7 @@ public class AdminSysDeptController {
     }
 
     @SysLog(value = "删除部门")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除")
     @DeleteMapping(value = "/sys/depts")
     public ApiResult<Void> delete(@RequestBody @Valid IdsDTO<Long> dto) {

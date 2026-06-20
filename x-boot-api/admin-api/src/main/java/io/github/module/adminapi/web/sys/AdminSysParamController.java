@@ -37,14 +37,14 @@ public class AdminSysParamController {
     private SysParamFacade sysParamFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "分页列表")
     @GetMapping(value = "/sys/params")
     public ApiResult<PageResult<SysParamBO>> list(PageParam pageParam, AdminListSysParamDTO dto) {
         return ApiResult.data(sysParamFacade.adminList(pageParam, dto));
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "详情")
     @GetMapping(value = "/sys/params/{id}")
     public ApiResult<SysParamBO> getById(@PathVariable("id") Long id) {
@@ -52,7 +52,7 @@ public class AdminSysParamController {
     }
 
     @SysLog(value = "新增系统参数")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE, orRole = "SuperAdmin")
     @Operation(summary = "新增")
     @PostMapping(value = "/sys/params")
     public ApiResult<Void> insert(@RequestBody @Valid AdminInsertOrUpdateSysParamDTO dto) {
@@ -62,7 +62,7 @@ public class AdminSysParamController {
     }
 
     @SysLog(value = "编辑系统参数")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE, orRole = "SuperAdmin")
     @Operation(summary = "编辑")
     @PutMapping(value = "/sys/params/{id}")
     public ApiResult<Void> update(@PathVariable("id") Long id, @RequestBody @Valid AdminInsertOrUpdateSysParamDTO dto) {
@@ -73,7 +73,7 @@ public class AdminSysParamController {
     }
 
     @SysLog(value = "删除系统参数")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除")
     @DeleteMapping(value = "/sys/params")
     public ApiResult<Void> delete(@RequestBody @Valid IdsDTO<Long> dto) {

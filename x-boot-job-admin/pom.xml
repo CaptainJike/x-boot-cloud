@@ -13,7 +13,7 @@
 
 	<properties>
 		<xxl-sso.version>2.0.0</xxl-sso.version>
-		<mybatis-spring-boot-starter.version>3.0.5</mybatis-spring-boot-starter.version>
+		<mybatis-spring-boot-starter.version>4.0.1</mybatis-spring-boot-starter.version>
 		<maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
 	</properties>
 
@@ -33,7 +33,7 @@
 		<!-- starter-web：spring-webmvc + autoconfigure + logback + yaml + tomcat -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
 
 		<dependency>

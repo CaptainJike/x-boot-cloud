@@ -16,8 +16,8 @@
 
 package io.github.framework.rocketmq.core.factory;
 
+import com.aliyun.openservices.ons.shaded.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.github.framework.rocketmq.props.AliyunRocketProperties;
-import com.aliyun.openservices.shade.com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;

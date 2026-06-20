@@ -31,7 +31,7 @@
         <!-- 这里写其他第三方依赖 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
+            <artifactId>dynamic-datasource-spring-boot4-starter</artifactId>
             <optional>true</optional>
         </dependency>
     </dependencies>

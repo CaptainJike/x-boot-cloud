@@ -41,14 +41,14 @@ public class AdminSysTenantController {
     private SysTenantFacade sysTenantFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "分页列表")
     @GetMapping(value = "/sys/tenants")
     public ApiResult<PageResult<SysTenantBO>> list(PageParam pageParam, AdminListSysTenantDTO dto) {
         return ApiResult.data(sysTenantFacade.adminList(pageParam, dto));
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "详情")
     @GetMapping(value = "/sys/tenants/{id}")
     public ApiResult<SysTenantBO> getById(@PathVariable("id") Long id) {
@@ -56,7 +56,7 @@ public class AdminSysTenantController {
     }
 
     @SysLog(value = "新增系统租户")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE, orRole = "SuperAdmin")
     @Operation(summary = "新增")
     @PostMapping(value = "/sys/tenants")
     public ApiResult<Void> insert(@RequestBody @Valid AdminInsertSysTenantDTO dto) {
@@ -66,7 +66,7 @@ public class AdminSysTenantController {
     }
 
     @SysLog(value = "编辑系统租户")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE, orRole = "SuperAdmin")
     @Operation(summary = "编辑")
     @PutMapping(value = "/sys/tenants/{id}")
     public ApiResult<Void> update(@PathVariable("id") Long id, @RequestBody @Valid AdminUpdateSysTenantDTO dto) {
@@ -82,7 +82,7 @@ public class AdminSysTenantController {
     }
 
     @SysLog(value = "删除系统租户")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除")
     @DeleteMapping(value = "/sys/tenants")
     public ApiResult<Void> delete(@RequestBody @Valid IdsDTO<Long> dto) {

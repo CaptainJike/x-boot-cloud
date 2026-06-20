@@ -36,14 +36,14 @@ public class AdminSysLogController {
     private SysLogFacade sysLogFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "分页列表")
     @GetMapping(value = "/sys/logs")
     public ApiResult<PageResult<SysLogBO>> list(PageParam pageParam, AdminListSysLogDTO dto) {
         return ApiResult.data(sysLogFacade.adminList(pageParam, dto));
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "详情")
     @GetMapping(value = "/sys/logs/{id}")
     public ApiResult<SysLogBO> getById(@PathVariable("id") Long id) {

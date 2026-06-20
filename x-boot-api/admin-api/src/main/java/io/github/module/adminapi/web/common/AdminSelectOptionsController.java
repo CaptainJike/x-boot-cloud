@@ -7,6 +7,8 @@ import io.github.framework.core.constant.BaseConstant;
 import io.github.framework.web.model.response.ApiResult;
 import io.github.module.adminapi.model.response.AdminSelectOptionItemVO;
 import io.github.module.adminapi.util.AdminStpUtil;
+import io.github.module.ai.facade.AiModelConfigFacade;
+import io.github.module.ai.model.response.AiModelConfigBO;
 import io.github.module.sys.facade.SysDeptFacade;
 import io.github.module.sys.facade.SysRoleFacade;
 import io.github.module.sys.model.response.SysDeptBO;
@@ -37,6 +39,9 @@ public class AdminSelectOptionsController {
     @DubboReference(version = BaseConstant.Version.DUBBO_VERSION_V1, validation = BaseConstant.Dubbo.ENABLE_VALIDATION)
     private SysDeptFacade sysDeptFacade;
 
+    @DubboReference(version = BaseConstant.Version.DUBBO_VERSION_V1, validation = BaseConstant.Dubbo.ENABLE_VALIDATION)
+    private AiModelConfigFacade aiModelConfigFacade;
+
 
     /*
     这里统一存放所有用于后台管理的下拉框数据源接口
@@ -56,6 +61,14 @@ public class AdminSelectOptionsController {
     public ApiResult<List<AdminSelectOptionItemVO>> depts() {
         return ApiResult.data(
                 AdminSelectOptionItemVO.listOf(sysDeptFacade.adminSelectOptions(true), SysDeptBO::getId, SysDeptBO::getTitle, SysDeptBO::getParentId)
+        );
+    }
+
+    @Operation(summary = "AI模型配置下拉框")
+    @GetMapping(value = "/select-options/ai-model-configs")
+    public ApiResult<List<AdminSelectOptionItemVO>> aiModelConfigs() {
+        return ApiResult.data(
+                AdminSelectOptionItemVO.listOf(aiModelConfigFacade.adminSelectOptions(), AiModelConfigBO::getId, AiModelConfigBO::getName)
         );
     }
 

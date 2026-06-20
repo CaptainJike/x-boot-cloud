@@ -40,7 +40,7 @@ public class AdminSysDataDictController {
     private SysDataDictFacade sysDataDictFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "分页列表数据字典分类")
     @GetMapping(value = "/sys/data-dict/classifieds")
     public ApiResult<PageResult<SysDataDictClassifiedBO>> list(PageParam pageParam, AdminSysDataDictClassifiedListDTO dto) {
@@ -48,7 +48,7 @@ public class AdminSysDataDictController {
     }
 
     @SysLog(value = "新增数据字典分类")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE, orRole = "SuperAdmin")
     @Operation(summary = "新增数据字典分类")
     @PostMapping(value = "/sys/data-dict/classifieds")
     public ApiResult<Void> insert(@RequestBody @Valid AdminSysDataDictClassifiedInsertOrUpdateDTO dto) {
@@ -58,7 +58,7 @@ public class AdminSysDataDictController {
     }
 
     @SysLog(value = "编辑数据字典分类")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE, orRole = "SuperAdmin")
     @Operation(summary = "编辑数据字典分类")
     @PutMapping(value = "/sys/data-dict/classifieds/{id}")
     public ApiResult<Void> update(@PathVariable("id") Long id, @RequestBody @Valid AdminSysDataDictClassifiedInsertOrUpdateDTO dto) {
@@ -69,7 +69,7 @@ public class AdminSysDataDictController {
     }
 
     @SysLog(value = "删除数据字典分类")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除数据字典分类")
     @DeleteMapping(value = "/sys/data-dict/classifieds")
     public ApiResult<Void> deleteClassified(@RequestBody @Valid IdsDTO<Long> dto) {
@@ -78,7 +78,7 @@ public class AdminSysDataDictController {
         return ApiResult.success();
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "分页列表数据字典分类下的字典项")
     @GetMapping(value = "/sys/data-dict/classifieds/{classifiedId}/items")
     public ApiResult<PageResult<SysDataDictItemBO>> list(@PathVariable("classifiedId") Long classifiedId, PageParam pageParam, AdminSysDataDictItemListDTO dto) {
@@ -87,7 +87,7 @@ public class AdminSysDataDictController {
     }
 
     @SysLog(value = "新增数据字典项")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE, orRole = "SuperAdmin")
     @Operation(summary = "新增数据字典项")
     @PostMapping(value = "/sys/data-dict/classifieds/{classifiedId}/items")
     public ApiResult<Void> insert(@PathVariable("classifiedId") Long classifiedId, @RequestBody @Valid AdminSysDataDictItemInsertOrUpdateDTO dto) {
@@ -98,7 +98,7 @@ public class AdminSysDataDictController {
     }
 
     @SysLog(value = "编辑数据字典项")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE, orRole = "SuperAdmin")
     @Operation(summary = "编辑数据字典项")
     @PutMapping(value = "/sys/data-dict/classifieds/{classifiedId}/items/{id}")
     public ApiResult<Void> update(@PathVariable("classifiedId") Long classifiedId, @PathVariable("id") Long id, @RequestBody @Valid AdminSysDataDictItemInsertOrUpdateDTO dto) {
@@ -111,7 +111,7 @@ public class AdminSysDataDictController {
     }
 
     @SysLog(value = "删除数据字典项")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除数据字典项")
     @DeleteMapping(value = "/sys/data-dict/classifieds/{classifiedId}/items")
     public ApiResult<Void> deleteItem(@PathVariable("classifiedId") Long classifiedId, @RequestBody @Valid IdsDTO<Long> dto) {

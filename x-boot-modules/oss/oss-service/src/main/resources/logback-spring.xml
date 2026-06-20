@@ -8,10 +8,11 @@
     <conversionRule conversionWord="wEx"
                     class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
-    <!-- 常量-项目名称 -->
-    <property name="APP_NAME" value="${spring.application.name}"/>
+    <!-- 从 Spring 环境读取应用名和日志根目录，兼容本地开发默认配置 -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="application"/>
+    <springProperty scope="context" name="LOG_BASE" source="logging.file.path" defaultValue="./logs"/>
     <!-- 常量-日志文件存储路径 -->
-    <property name="LOG_HOME" value="/ufs/logs/${APP_NAME}"/>
+    <property name="LOG_HOME" value="${LOG_BASE}/${APP_NAME}"/>
     <!-- 常量-日志文件保留天数 -->
     <property name="LOG_MAX_HISTORY" value="30"/>
     <!-- 常量-日志文件最大占用 -->

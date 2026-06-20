@@ -43,14 +43,14 @@ public class AdminSysRoleController {
     private SysRoleFacade sysRoleFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "分页列表")
     @GetMapping(value = "/sys/roles")
     public ApiResult<PageResult<SysRoleBO>> list(PageParam pageParam, AdminListSysRoleDTO dto) {
         return ApiResult.data(sysRoleFacade.adminList(pageParam, dto));
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "详情")
     @GetMapping(value = "/sys/roles/{id}")
     public ApiResult<SysRoleBO> getById(@PathVariable("id") Long id) {
@@ -58,7 +58,7 @@ public class AdminSysRoleController {
     }
 
     @SysLog(value = "新增后台角色")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE, orRole = "SuperAdmin")
     @Operation(summary = "新增")
     @PostMapping(value = "/sys/roles")
     public ApiResult<Void> insert(@RequestBody @Valid AdminInsertOrUpdateSysRoleDTO dto) {
@@ -69,7 +69,7 @@ public class AdminSysRoleController {
     }
 
     @SysLog(value = "编辑后台角色")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE, orRole = "SuperAdmin")
     @Operation(summary = "编辑")
     @PutMapping(value = "/sys/roles/{id}")
     public ApiResult<Void> update(@PathVariable("id") Long id, @RequestBody @Valid AdminInsertOrUpdateSysRoleDTO dto) {
@@ -82,7 +82,7 @@ public class AdminSysRoleController {
     }
 
     @SysLog(value = "删除后台角色")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除")
     @DeleteMapping(value = "/sys/roles")
     public ApiResult<Void> delete(@RequestBody @Valid IdsDTO<Long> dto) {
@@ -95,7 +95,7 @@ public class AdminSysRoleController {
     }
 
     @SysLog(value = "绑定角色与菜单关联关系")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + "bindMenus")
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + "bindMenus", orRole = "SuperAdmin")
     @Operation(summary = "绑定角色与菜单关联关系")
     @PutMapping(value = "/sys/roles/{id}/menus")
     public ApiResult<Void> bindMenus(@PathVariable("id") Long id, @RequestBody @Valid AdminBindRoleMenuRelationDTO dto) {

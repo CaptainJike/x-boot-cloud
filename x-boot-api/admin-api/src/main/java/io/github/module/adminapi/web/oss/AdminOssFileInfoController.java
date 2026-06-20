@@ -36,21 +36,21 @@ public class AdminOssFileInfoController {
     private OssFileInfoFacade ossFileInfoFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "分页列表")
     @GetMapping(value = "/oss/file/infos")
     public ApiResult<PageResult<OssFileInfoBO>> list(PageParam pageParam, AdminListOssFileInfoDTO dto) {
         return ApiResult.data(ossFileInfoFacade.adminList(pageParam, dto));
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "详情")
     @GetMapping(value = "/oss/file/infos/{id}")
     public ApiResult<OssFileInfoBO> getById(@PathVariable("id") Long id) {
         return ApiResult.data(ossFileInfoFacade.getOneById(id, true));
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除")
     @DeleteMapping(value = "/oss/file/infos")
     public ApiResult<Void> delete(@RequestBody @Valid IdsDTO<Long> dto) {

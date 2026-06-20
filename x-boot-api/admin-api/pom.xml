@@ -34,6 +34,12 @@
             <version>${revision}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.module</groupId>
+            <artifactId>ai-facade</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 脚手架starter -->
 
         <dependency>

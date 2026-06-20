@@ -3,9 +3,9 @@
 <div align="center">
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Java](https://img.shields.io/badge/Java-17-orange.svg)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.9-brightgreen.svg)
-![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.1.0-blue.svg)
+![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.7-brightgreen.svg)
+![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.1.2-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 **企业级 Java 微服务脚手架**
@@ -22,26 +22,26 @@ x-boot-cloud 是一个面向生产级场景的 Spring Boot / Spring Cloud 微服
 
 ### 技术栈
 
-- **Java**: 17
-- **Spring Boot**: 3.5.9
-- **Spring Cloud**: 2025.1.0
-- **Spring Cloud Alibaba**: 2025.0.0.0
+- **Java**: 21
+- **Spring Boot**: 4.0.7
+- **Spring Cloud**: 2025.1.2
+- **Spring Cloud Alibaba**: 2025.1.0.0
 - **主要中间件**:
   - Nacos (服务发现/配置中心)
   - Dubbo 3.3.6 (RPC)
   - MyBatis-Plus 3.5.16 (ORM)
-  - Redisson 4.1.0 (分布式缓存/锁)
+  - Redisson 4.6.1 (分布式缓存/锁)
   - RocketMQ ONS (消息队列)
   - XXL-Job (分布式任务调度)
-  - Sa-Token 1.44.0 (权限认证)
+  - Sa-Token 1.45.0 (权限认证)
   - Knife4j + SpringDoc (API 文档)
 
 ### 快速索引
 
 - **仓库地址**: https://github.com/CaptainJike/x-boot-cloud
-- **Java 版本**: 17
-- **Spring Boot**: 3.5.9
-- **Spring Cloud**: 2025.1.0
+- **Java 版本**: 21
+- **Spring Boot**: 4.0.7
+- **Spring Cloud**: 2025.1.2
 - **主要模块**:
     - `x-boot-starters` - 基础能力 starter 集合
     - `x-boot-api` - API 接口定义（admin-api, app-api）
@@ -53,7 +53,7 @@ x-boot-cloud 是一个面向生产级场景的 Spring Boot / Spring Cloud 微服
 ### 核心能力
 
 - ✅ **集中化的 Starter 套件**: 统一日志、异常处理、AOP、鉴权、缓存、限流等基础能力，减少重复实现
-- ✅ **多 AI 模型支持**: 集成 Spring AI，支持 Ollama（本地模型）、OpenAI、DashScope（通义千问）、DeepSeek 等多种 AI 模型
+- ✅ **多 AI 模型支持**: 统一使用 Spring AI，支持 Ollama、OpenAI、DeepSeek，以及通义千问 OpenAI-compatible 接口
 - ✅ **主流中间件集成**: Nacos（注册/配置）、Dubbo、MyBatis-Plus、Redisson、XXL-Job、RocketMQ（阿里云 ONS）等
 - ✅ **现代运维能力**: Actuator、Prometheus 指标端点、SpringDoc/Knife4j API 文档、结构化日志
 - ✅ **企业级特性**: 多数据源、动态库表、分布式任务、多租户、审计与权限（sa-token）
@@ -76,7 +76,7 @@ x-boot-cloud 是一个面向生产级场景的 Spring Boot / Spring Cloud 微服
 | `x-boot-starter-i18n` | 国际化支持 |
 | `x-boot-starter-tenant` | 多租户支持 |
 | `x-boot-starter-rocketmq-aliyun` | RocketMQ 阿里云 ONS 集成 |
-| `x-boot-starter-ai` | AI 模型集成（Ollama、OpenAI、DashScope、DeepSeek） |
+| `x-boot-starter-ai` | AI 模型集成（Ollama、OpenAI、OpenAI-compatible、DeepSeek） |
 | `x-boot-job-core` | XXL-Job 任务调度核心 |
 | `x-boot-starter-test` | 测试工具类 |
 
@@ -248,16 +248,16 @@ mvn spring-boot:run
 
 ## AI 功能使用
 
-x-boot-cloud 集成了 Spring AI，支持多种 AI 模型：
+x-boot-cloud 统一使用 Spring AI 作为 AI 抽象层，不依赖 Spring AI Alibaba。通义千问优先通过阿里云百炼 OpenAI-compatible endpoint 接入。
 
 ### 支持的 AI 模型
 
-| 模型类型 | 说明 | 配置项 |
-|---------|------|--------|
-| **Ollama** | 本地部署的 AI 模型 | `spring.ai.ollama.*` |
-| **OpenAI** | OpenAI GPT 系列模型 | `spring.ai.openai.*` |
-| **DashScope** | 阿里云通义千问 | `spring.ai.alibaba.dashscope.*` |
-| **DeepSeek** | DeepSeek AI 模型 | `spring.ai.deepseek.*` |
+| 模型类型 | 接入方式 | 关键配置 |
+|---------|---------|--------|
+| **Ollama** | Spring AI Ollama 官方 starter | `providerType=OLLAMA`、`baseUrl=http://localhost:11434` |
+| **OpenAI** | Spring AI OpenAI 官方 starter | `providerType=OPENAI`、`modelName=gpt-4o-mini` |
+| **通义千问** | Spring AI OpenAI 适配器调用百炼兼容接口 | `providerType=OPENAI_COMPATIBLE`、`baseUrl=https://dashscope.aliyuncs.com/compatible-mode/v1`、`modelName=qwen-plus` |
+| **DeepSeek** | Spring AI DeepSeek 官方 starter | `providerType=DEEPSEEK`、`modelName=deepseek-chat` |
 
 ### 使用示例
 
@@ -265,11 +265,22 @@ x-boot-cloud 集成了 Spring AI，支持多种 AI 模型：
 @Autowired
 private XBootAiFactory aiFactory;
 
-// 同步调用
-String response = aiFactory.chat("你好", ModelTypeEnum.OPENAI);
+AiModelConfig qwenConfig = new AiModelConfig()
+        .setProviderType(AiProviderTypeEnum.OPENAI_COMPATIBLE)
+        .setBaseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
+        .setApiKey(System.getenv("DASHSCOPE_API_KEY"))
+        .setModelName("qwen-plus")
+        .setTemperature(0.7D)
+        .setTimeout(Duration.ofSeconds(60));
+
+// 同步调用，推荐由数据库或 Nacos 按租户/模型读取 AiModelConfig
+String response = aiFactory.chat("你好", qwenConfig);
 
 // 流式调用
-Flux<String> stream = aiFactory.streamChat("你好", ModelTypeEnum.DASHSCOPE);
+Flux<String> stream = aiFactory.streamChat("你好", qwenConfig);
+
+// 兼容旧入口，默认从环境变量读取对应 apiKey
+String legacyResponse = aiFactory.chat("你好", ModelTypeEnum.OPENAI);
 ```
 
 详细配置和使用说明请参考各业务模块的文档。
@@ -407,11 +418,11 @@ kubectl apply -k kustomize/overlays/prod
 
 ### Q: 如何切换不同的 AI 模型？
 
-A: 在配置文件中设置相应的模型配置，调用时指定 `ModelTypeEnum` 即可。默认使用 Ollama。
+A: 推荐由数据库或 Nacos 维护 `providerType`、`baseUrl`、`apiKey`、`modelName`、`temperature`、`timeout`、`enabled`，调用时传入 `AiModelConfig`。旧的 `ModelTypeEnum` 入口仍保留，默认使用 Ollama。
 
 ### Q: 如何配置多数据源？
 
-A: 使用 `dynamic-datasource-spring-boot3starter`，在配置文件中配置多个数据源，使用 `@DS` 注解切换。
+A: 使用 `dynamic-datasource-spring-boot4-starter`，在配置文件中配置多个数据源，使用 `@DS` 注解切换。
 
 ### Q: 如何自定义异常处理？
 
@@ -432,7 +443,7 @@ A: 参考 `x-boot-job-admin` 模块，配置 XXL-Job 的执行器地址和注册
 
 - **1.0.0** (当前版本)
   - 初始版本发布
-  - 集成 Spring Boot 3.5.9、Spring Cloud 2025.1.0
+  - 集成 Spring Boot 4.0.7、Spring Cloud 2025.1.2、Spring AI 2.0.0
   - 支持多种 AI 模型集成
   - 完整的微服务基础能力
 

@@ -36,14 +36,14 @@ public class AdminSysMenuController {
     private SysMenuFacade sysMenuFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "列表")
     @GetMapping(value = "/sys/menus")
     public ApiResult<List<SysMenuBO>> list() {
         return ApiResult.data(sysMenuFacade.adminList());
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "详情")
     @GetMapping(value = "/sys/menus/{id}")
     public ApiResult<SysMenuBO> getById(@PathVariable("id") Long id) {
@@ -51,7 +51,7 @@ public class AdminSysMenuController {
     }
 
     @SysLog(value = "新增后台菜单")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE, orRole = "SuperAdmin")
     @Operation(summary = "新增")
     @PostMapping(value = "/sys/menus")
     public ApiResult<Void> insert(@RequestBody @Valid AdminInsertOrUpdateSysMenuDTO dto) {
@@ -61,7 +61,7 @@ public class AdminSysMenuController {
     }
 
     @SysLog(value = "编辑后台菜单")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE, orRole = "SuperAdmin")
     @Operation(summary = "编辑")
     @PutMapping(value = "/sys/menus/{id}")
     public ApiResult<Void> update(@PathVariable("id") Long id, @RequestBody @Valid AdminInsertOrUpdateSysMenuDTO dto) {
@@ -72,7 +72,7 @@ public class AdminSysMenuController {
     }
 
     @SysLog(value = "删除后台菜单")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除")
     @DeleteMapping(value = "/sys/menus")
     public ApiResult<Void> delete(@RequestBody @Valid IdsDTO<Long> dto) {

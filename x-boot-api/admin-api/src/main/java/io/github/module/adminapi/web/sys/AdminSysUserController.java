@@ -45,14 +45,14 @@ public class AdminSysUserController {
     private SysUserFacade sysUserFacade;
 
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "分页列表")
     @GetMapping(value = "/sys/users")
     public ApiResult<PageResult<SysUserBO>> list(PageParam pageParam, AdminListSysUserDTO dto) {
         return ApiResult.data(sysUserFacade.adminList(pageParam, dto));
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "详情")
     @GetMapping(value = "/sys/users/{id}")
     public ApiResult<SysUserBO> getById(@PathVariable("id") Long id) {
@@ -60,7 +60,7 @@ public class AdminSysUserController {
     }
 
     @SysLog(value = "新增后台用户")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.CREATE, orRole = "SuperAdmin")
     @Operation(summary = "新增")
     @PostMapping(value = "/sys/users")
     public ApiResult<Void> insert(@RequestBody @Valid AdminInsertOrUpdateSysUserDTO dto) {
@@ -71,7 +71,7 @@ public class AdminSysUserController {
     }
 
     @SysLog(value = "编辑后台用户")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.UPDATE, orRole = "SuperAdmin")
     @Operation(summary = "编辑")
     @PutMapping(value = "/sys/users/{id}")
     public ApiResult<Void> update(@PathVariable("id") Long id, @RequestBody @Valid AdminInsertOrUpdateSysUserDTO dto) {
@@ -89,7 +89,7 @@ public class AdminSysUserController {
     }
 
     @SysLog(value = "删除后台用户")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.DELETE, orRole = "SuperAdmin")
     @Operation(summary = "删除")
     @DeleteMapping(value = "/sys/users")
     public ApiResult<Void> delete(@RequestBody @Valid IdsDTO<Long> dto) {
@@ -104,7 +104,7 @@ public class AdminSysUserController {
     }
 
     @SysLog(value = "重置后台用户密码")
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + "resetPassword")
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + "resetPassword", orRole = "SuperAdmin")
     @Operation(summary = "重置后台用户密码")
     @PutMapping(value = "/sys/users/{userId}/password")
     public ApiResult<Void> resetPassword(@PathVariable("userId") Long userId, @RequestBody @Valid AdminResetSysUserPasswordDTO dto) {
@@ -117,7 +117,7 @@ public class AdminSysUserController {
         return ApiResult.success();
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + "bindRoles")
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + "bindRoles", orRole = "SuperAdmin")
     @Operation(summary = "绑定用户与角色关联关系")
     @PutMapping(value = "/sys/users/{userId}/roles")
     public ApiResult<Void> bindRoles(@PathVariable("userId") Long userId, @RequestBody AdminBindUserRoleRelationDTO dto) {
@@ -132,7 +132,7 @@ public class AdminSysUserController {
         return ApiResult.success();
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + "kickOut")
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + "kickOut", orRole = "SuperAdmin")
     @Operation(summary = "踢某用户下线")
     @PostMapping(value = "/sys/users/{userId}:kick-out")
     public ApiResult<Void> kickOut(@PathVariable("userId") Long userId) {
@@ -141,7 +141,7 @@ public class AdminSysUserController {
         return ApiResult.success();
     }
 
-    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE)
+    @SaCheckPermission(type = AdminStpUtil.TYPE, value = PERMISSION_PREFIX + BaseConstant.Permission.RETRIEVE, orRole = "SuperAdmin")
     @Operation(summary = "取指定用户关联角色ID")
     @GetMapping(value = "/sys/users/{userId}/roles")
     public ApiResult<Set<Long>> listRelatedRoleIds(@PathVariable("userId") Long userId) {
