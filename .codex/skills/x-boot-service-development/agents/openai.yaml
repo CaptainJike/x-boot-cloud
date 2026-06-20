@@ -1,0 +1,4 @@
+interface:
+  display_name: "X-Boot Service Development"
+  short_description: "规范 x-boot-cloud 服务模块开发与评审流程"
+  default_prompt: "Use $x-boot-service-development to design or review a new x-boot-cloud service module."
