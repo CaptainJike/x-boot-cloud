@@ -52,16 +52,50 @@ public class AdminSelectOptionItemVO implements Serializable {
     }
 
 
-    // 值👉标签 一对（仅用于枚举）
+    // 值👉标签 一对（用于枚举、编码、远程搜索等所有前端可直接绑定的下拉值）
     @Schema(description = "值")
-    private Number value;
+    @Setter
+    private Object value;
     @Schema(description = "标签")
+    @Setter
     private String label;
 
-    public AdminSelectOptionItemVO(BaseEnum<? extends Number> baseEnum) {
+    public AdminSelectOptionItemVO(BaseEnum<?> baseEnum) {
         this.value = baseEnum.getValue();
         this.label = baseEnum.getLabel();
     }
+
+    public AdminSelectOptionItemVO(Object value, String label) {
+        this.value = value;
+        this.label = label;
+    }
+    @Schema(description = "业务编码")
+    @Setter
+    private String code;
+
+    @Schema(description = "供应商类型")
+    @Setter
+    private String providerType;
+
+    @Schema(description = "模型名称")
+    @Setter
+    private String modelName;
+
+    @Schema(description = "支持的模态")
+    @Setter
+    private String supportedModalities;
+
+    @Schema(description = "支持的能力")
+    @Setter
+    private String supportedCapabilities;
+
+    @Schema(description = "描述")
+    @Setter
+    private String description;
+
+    @Schema(description = "是否禁用")
+    @Setter
+    private Boolean disabled;
 
     /*
     ----------------------------------------------------------------
@@ -180,7 +214,7 @@ public class AdminSelectOptionItemVO implements Serializable {
      *
      * @param xBaseEnum 实现了BaseEnum的枚举类
      */
-    public static <E extends Enum<?> & BaseEnum<? extends Number>> List<AdminSelectOptionItemVO> listOf(Class<E> xBaseEnum) {
+    public static <E extends Enum<?> & BaseEnum<?>> List<AdminSelectOptionItemVO> listOf(Class<E> xBaseEnum) {
         return listOf(xBaseEnum, null);
     }
 
@@ -191,7 +225,7 @@ public class AdminSelectOptionItemVO implements Serializable {
      * @param xBaseEnum      实现了BaseEnum的枚举类
      * @param enumConstantFilter （可选）枚举类中枚举常量过滤器
      */
-    public static <E extends Enum<?> & BaseEnum<? extends Number>> List<AdminSelectOptionItemVO> listOf(
+    public static <E extends Enum<?> & BaseEnum<?>> List<AdminSelectOptionItemVO> listOf(
             Class<E> xBaseEnum,
             Predicate<E> enumConstantFilter
     ) {
@@ -203,5 +237,9 @@ public class AdminSelectOptionItemVO implements Serializable {
             stream = stream.filter(enumConstantFilter);
         }
         return stream.map(AdminSelectOptionItemVO::new).toList();
+    }
+
+    public static AdminSelectOptionItemVO valueOf(Object value, String label) {
+        return new AdminSelectOptionItemVO(value, label);
     }
 }

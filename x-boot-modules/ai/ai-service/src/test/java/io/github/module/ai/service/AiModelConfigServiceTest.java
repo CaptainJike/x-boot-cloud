@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import io.github.framework.core.enums.EnabledStatusEnum;
 import io.github.framework.core.enums.YesOrNoEnum;
 import io.github.framework.core.exception.BusinessException;
+import io.github.module.ai.constant.AiModelCapabilityConstant;
 import io.github.module.ai.entity.AiModelConfigEntity;
 import io.github.module.ai.mapper.AiModelConfigMapper;
 import io.github.module.ai.model.request.AdminInsertOrUpdateAiModelConfigDTO;
 import io.github.module.ai.model.response.AiModelConfigBO;
 import io.github.module.ai.model.response.AiModelConfigTestBO;
+import io.github.module.ai.service.embedding.AiKnowledgeEmbeddingProviderService;
+import io.github.module.ai.service.model.AiKnowledgeEmbeddingResponse;
 import io.github.starter.ai.service.XBootAiService;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.junit.jupiter.api.BeforeAll;
@@ -47,6 +50,9 @@ class AiModelConfigServiceTest {
     @Mock
     private XBootAiService xBootAiService;
 
+    @Mock
+    private AiKnowledgeEmbeddingProviderService aiKnowledgeEmbeddingProviderService;
+
     @InjectMocks
     private AiModelConfigService aiModelConfigService;
 
@@ -80,6 +86,29 @@ class AiModelConfigServiceTest {
         ArgumentCaptor<AiModelConfigEntity> entityCaptor = ArgumentCaptor.forClass(AiModelConfigEntity.class);
         verify(aiModelConfigMapper).insert(entityCaptor.capture());
         assertThat(entityCaptor.getValue().getProviderType()).isEqualTo("OPENAI_COMPATIBLE");
+        assertThat(entityCaptor.getValue().getSupportedModalities()).isEqualTo("text");
+        assertThat(entityCaptor.getValue().getSupportedCapabilities()).isEqualTo("chat");
+    }
+
+    @Test
+    void adminInsertAcceptsZhiPuProviderType() {
+        when(aiModelConfigMapper.selectOne(any())).thenReturn(null);
+        when(aiModelConfigMapper.insert(any(AiModelConfigEntity.class))).thenAnswer(invocation -> {
+            AiModelConfigEntity entity = invocation.getArgument(0);
+            entity.setId(2L);
+            return 1;
+        });
+
+        aiModelConfigService.adminInsert(validDto()
+                .setProviderType("ZhiPu")
+                .setBaseUrl(null)
+                .setApiKey("zhipu-test-key")
+                .setModelName("embedding-3"));
+
+        ArgumentCaptor<AiModelConfigEntity> entityCaptor = ArgumentCaptor.forClass(AiModelConfigEntity.class);
+        verify(aiModelConfigMapper).insert(entityCaptor.capture());
+        assertThat(entityCaptor.getValue().getProviderType()).isEqualTo("ZHIPU");
+        assertThat(entityCaptor.getValue().getModelName()).isEqualTo("embedding-3");
     }
 
     @Test
@@ -100,6 +129,20 @@ class AiModelConfigServiceTest {
         assertThat(options.getFirst().getId()).isEqualTo(1L);
         assertThat(options.getFirst().getCode()).isEqualTo("default");
         assertThat(options.getFirst().getName()).isEqualTo("默认模型");
+        assertThat(options.getFirst().getSupportedModalities()).isEqualTo("text");
+        assertThat(options.getFirst().getSupportedCapabilities()).isEqualTo("chat");
+    }
+
+    @Test
+    void getOneByIdKeepsFullApiKeyInternallyAndBuildsMaskedValue() {
+        AiModelConfigEntity entity = enabledEntity().setApiKey("sk-secret-123456");
+        entity.setId(1L);
+        when(aiModelConfigMapper.selectById(1L)).thenReturn(entity);
+
+        AiModelConfigBO result = aiModelConfigService.getOneById(1L, true);
+
+        assertThat(result.getApiKey()).isEqualTo("sk-secret-123456");
+        assertThat(result.getApiKeyMasked()).isEqualTo("sk-sec******3456");
     }
 
     @Test
@@ -111,13 +154,37 @@ class AiModelConfigServiceTest {
                 .setModelName("deepseek-chat");
         entity.setId(1L);
         when(aiModelConfigMapper.selectById(1L)).thenReturn(entity);
-        when(xBootAiService.chat(any(), any())).thenReturn("OK");
+        when(xBootAiService.chat(any(String.class), any())).thenReturn("OK");
 
         AiModelConfigTestBO result = aiModelConfigService.adminTest(1L);
 
         assertThat(result.getSuccess()).isTrue();
         assertThat(result.getApiKeyPresent()).isTrue();
         assertThat(result.getAnswerPreview()).isEqualTo("OK");
+    }
+
+    @Test
+    void adminTestUsesEmbeddingProviderForEmbeddingOnlyConfig() {
+        AiModelConfigEntity entity = enabledEntity()
+                .setProviderType("ZHIPU")
+                .setBaseUrl("https://open.bigmodel.cn/api/paas/v4")
+                .setApiKey("zhipu-test-key")
+                .setModelName("embedding-3")
+                .setSupportedCapabilities(AiModelCapabilityConstant.EMBEDDING);
+        entity.setId(2L);
+        when(aiModelConfigMapper.selectById(2L)).thenReturn(entity);
+        when(aiKnowledgeEmbeddingProviderService.embed(any()))
+                .thenReturn(AiKnowledgeEmbeddingResponse.builder()
+                        .dimensions(1024)
+                        .vector(List.of(0.1D, 0.2D))
+                        .build());
+
+        AiModelConfigTestBO result = aiModelConfigService.adminTest(2L);
+
+        assertThat(result.getSuccess()).isTrue();
+        assertThat(result.getMessage()).isEqualTo("AI向量模型配置检测成功");
+        assertThat(result.getAnswerPreview()).isEqualTo("vectorDimensions=1024");
+        verify(xBootAiService, never()).chat(any(String.class), any());
     }
 
     @Test

@@ -1,0 +1,14 @@
+x:
+  ai:
+    knowledge:
+      vector-store:
+        type: ${AI_KNOWLEDGE_VECTOR_STORE_TYPE:qdrant}
+        enabled: ${AI_KNOWLEDGE_VECTOR_STORE_ENABLED:true}
+        host: ${QDRANT_HOST:127.0.0.1}
+        port: ${QDRANT_GRPC_PORT:6334}
+        api-key: ${QDRANT_API_KEY:}
+        use-tls: ${QDRANT_USE_TLS:false}
+        collection-prefix: ${QDRANT_COLLECTION_PREFIX:x_boot_ai_knowledge}
+        distance: ${QDRANT_DISTANCE:Cosine}
+        initialize-schema: ${QDRANT_INITIALIZE_SCHEMA:true}
+        timeout: ${QDRANT_TIMEOUT:10s}

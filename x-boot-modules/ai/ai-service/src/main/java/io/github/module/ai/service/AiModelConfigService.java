@@ -12,6 +12,7 @@ import io.github.framework.core.enums.YesOrNoEnum;
 import io.github.framework.core.exception.BusinessException;
 import io.github.framework.core.page.PageParam;
 import io.github.framework.core.page.PageResult;
+import io.github.module.ai.constant.AiModelCapabilityConstant;
 import io.github.module.ai.entity.AiModelConfigEntity;
 import io.github.module.ai.enums.AiErrorEnum;
 import io.github.module.ai.mapper.AiModelConfigMapper;
@@ -21,6 +22,10 @@ import io.github.module.ai.model.request.AdminListProviderModelDTO;
 import io.github.module.ai.model.response.AiModelConfigBO;
 import io.github.module.ai.model.response.AiModelConfigTestBO;
 import io.github.module.ai.model.response.AiProviderModelBO;
+import io.github.module.ai.service.embedding.AiKnowledgeEmbeddingProviderService;
+import io.github.module.ai.service.model.AiKnowledgeEmbeddingContext;
+import io.github.module.ai.service.model.AiKnowledgeEmbeddingRequest;
+import io.github.module.ai.service.model.AiKnowledgeEmbeddingResponse;
 import io.github.starter.ai.enums.AiProviderTypeEnum;
 import io.github.starter.ai.service.XBootAiService;
 import io.github.starter.ai.vo.AiModelConfig;
@@ -51,6 +56,8 @@ public class AiModelConfigService {
 
     private static final String TEST_PROMPT = "请只回复 OK，用于检测模型配置连通性。";
 
+    private static final String TEST_EMBEDDING_TEXT = "这是一段用于检测 embedding 模型配置连通性的测试文本。";
+
     private static final int ANSWER_PREVIEW_LENGTH = 500;
 
     private static final String DEFAULT_DASHSCOPE_BASE_URL =
@@ -60,11 +67,19 @@ public class AiModelConfigService {
 
     private static final String DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com";
 
+    private static final String DEFAULT_ZHIPU_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
+
     private static final String DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
+
+    public static final String MODALITY_TEXT = "text";
+
+    public static final String MODALITY_IMAGE = "image";
 
     private final AiModelConfigMapper aiModelConfigMapper;
 
     private final XBootAiService xBootAiService;
+
+    private final AiKnowledgeEmbeddingProviderService aiKnowledgeEmbeddingProviderService;
 
     /**
      * 后台管理-分页列表.
@@ -100,6 +115,20 @@ public class AiModelConfigService {
         );
 
         return this.entityList2BOs(entityList);
+    }
+
+    /**
+     * 是否支持指定能力.
+     */
+    public boolean supportsCapability(AiModelConfigBO config, String capability) {
+        return config != null && supportsCapability(config.getSupportedCapabilities(), capability);
+    }
+
+    /**
+     * 是否支持指定能力.
+     */
+    public boolean supportsCapability(String supportedCapabilities, String capability) {
+        return AiModelCapabilityConstant.contains(supportedCapabilities, capability);
     }
 
     /**
@@ -170,7 +199,7 @@ public class AiModelConfigService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Long adminInsert(AdminInsertOrUpdateAiModelConfigDTO dto) {
-        log.info("[后台管理-新增AI模型配置] >> 入参={}", dto);
+        log.info("[后台管理-新增AI模型配置] >> code={}, providerType={}", dto.getCode(), dto.getProviderType());
         this.checkExistence(dto);
 
         dto.setId(null);
@@ -190,7 +219,8 @@ public class AiModelConfigService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void adminUpdate(AdminInsertOrUpdateAiModelConfigDTO dto) {
-        log.info("[后台管理-编辑AI模型配置] >> 入参={}", dto);
+        log.info("[后台管理-编辑AI模型配置] >> id={}, code={}, providerType={}",
+                dto.getId(), dto.getCode(), dto.getProviderType());
         AiModelConfigEntity existingEntity = aiModelConfigMapper.selectById(dto.getId());
         AiErrorEnum.INVALID_ID.assertNotNull(existingEntity);
         this.checkExistence(dto);
@@ -222,6 +252,19 @@ public class AiModelConfigService {
         long startAt = System.currentTimeMillis();
         AiModelConfigTestBO result = baseTestResult(bo);
         try {
+            if (!supportsCapability(bo, AiModelCapabilityConstant.CHAT)
+                    && supportsCapability(bo, AiModelCapabilityConstant.EMBEDDING)) {
+                AiKnowledgeEmbeddingResponse response =
+                        aiKnowledgeEmbeddingProviderService.embed(AiKnowledgeEmbeddingRequest.builder()
+                                .text(TEST_EMBEDDING_TEXT)
+                                .context(toEmbeddingContext(bo))
+                                .build());
+                return result
+                        .setSuccess(true)
+                        .setMessage("AI向量模型配置检测成功")
+                        .setElapsedMilliseconds(System.currentTimeMillis() - startAt)
+                        .setAnswerPreview("vectorDimensions=" + response.getDimensions());
+            }
             String answer = xBootAiService.chat(TEST_PROMPT, this.toRuntimeConfig(bo));
             return result
                     .setSuccess(true)
@@ -247,7 +290,7 @@ public class AiModelConfigService {
 
         try {
             return switch (providerType) {
-                case OPENAI, OPENAI_COMPATIBLE, DEEPSEEK -> listOpenAiStyleModels(baseUrl, apiKey);
+                case OPENAI, OPENAI_COMPATIBLE, DEEPSEEK, ZHIPU -> listOpenAiStyleModels(baseUrl, apiKey);
                 case OLLAMA -> listOllamaModels(baseUrl);
             };
         } catch (RestClientException | IllegalArgumentException e) {
@@ -295,6 +338,8 @@ public class AiModelConfigService {
         AiModelConfigBO bo = new AiModelConfigBO();
         BeanUtil.copyProperties(entity, bo);
         bo.setApiKeyMasked(maskApiKey(entity.getApiKey()));
+        bo.setSupportedModalities(normalizeSupportedModalities(entity.getSupportedModalities()));
+        bo.setSupportedCapabilities(normalizeSupportedCapabilities(entity.getSupportedCapabilities()));
 
         return bo;
     }
@@ -333,6 +378,18 @@ public class AiModelConfigService {
                 .modelName(bo.getModelName())
                 .apiKeyMasked(bo.getApiKeyMasked())
                 .apiKeyPresent(StrUtil.isNotBlank(bo.getApiKey()))
+                .build();
+    }
+
+    private AiKnowledgeEmbeddingContext toEmbeddingContext(AiModelConfigBO bo) {
+        return AiKnowledgeEmbeddingContext.builder()
+                .modelConfigId(bo.getId())
+                .modelConfigCode(bo.getCode())
+                .providerType(bo.getProviderType())
+                .baseUrl(bo.getBaseUrl())
+                .apiKey(cleanApiKey(bo.getApiKey()))
+                .modelName(bo.getModelName())
+                .timeoutSeconds(bo.getTimeoutSeconds())
                 .build();
     }
 
@@ -378,7 +435,36 @@ public class AiModelConfigService {
         entity.setBaseUrl(clean(entity.getBaseUrl()));
         entity.setApiKey(cleanApiKey(entity.getApiKey()));
         entity.setModelName(clean(entity.getModelName()));
+        entity.setSupportedModalities(normalizeSupportedModalities(entity.getSupportedModalities()));
+        entity.setSupportedCapabilities(normalizeSupportedCapabilities(entity.getSupportedCapabilities()));
         entity.setDescription(StrUtil.blankToDefault(clean(entity.getDescription()), StrUtil.EMPTY));
+    }
+
+    private String normalizeSupportedModalities(String supportedModalities) {
+        String cleanedModalities = clean(supportedModalities);
+        if (StrUtil.isBlank(cleanedModalities)) {
+            return MODALITY_TEXT;
+        }
+        List<String> modalities = StrUtil.split(cleanedModalities, ',')
+                .stream()
+                .map(item -> clean(item).toLowerCase())
+                .filter(StrUtil::isNotBlank)
+                .distinct()
+                .toList();
+        if (modalities.isEmpty()) {
+            return MODALITY_TEXT;
+        }
+        if (!modalities.contains(MODALITY_TEXT)) {
+            List<String> withText = new ArrayList<>(modalities.size() + 1);
+            withText.add(MODALITY_TEXT);
+            withText.addAll(modalities);
+            return String.join(",", withText);
+        }
+        return String.join(",", modalities);
+    }
+
+    private String normalizeSupportedCapabilities(String supportedCapabilities) {
+        return AiModelCapabilityConstant.normalize(clean(supportedCapabilities));
     }
 
     private void checkApiKey(AiModelConfigEntity entity) {
@@ -393,6 +479,9 @@ public class AiModelConfigService {
         if (StrUtil.equalsAnyIgnoreCase(cleanedProviderType,
                 "DASHSCOPE", "DASH_SCOPE", "QWEN", "TONGYI", "TONG_YI")) {
             return AiProviderTypeEnum.OPENAI_COMPATIBLE;
+        }
+        if (StrUtil.equalsAnyIgnoreCase(cleanedProviderType, "ZHI_PU", "BIGMODEL", "BIG_MODEL")) {
+            return AiProviderTypeEnum.ZHIPU;
         }
         try {
             return AiProviderTypeEnum.valueOf(cleanedProviderType.toUpperCase());
@@ -452,6 +541,7 @@ public class AiModelConfigService {
             case OPENAI -> StrUtil.blankToDefault(cleanBaseUrl, DEFAULT_OPENAI_BASE_URL);
             case OPENAI_COMPATIBLE -> StrUtil.blankToDefault(cleanBaseUrl, DEFAULT_DASHSCOPE_BASE_URL);
             case DEEPSEEK -> StrUtil.blankToDefault(cleanBaseUrl, DEFAULT_DEEPSEEK_BASE_URL);
+            case ZHIPU -> StrUtil.blankToDefault(cleanBaseUrl, DEFAULT_ZHIPU_BASE_URL);
             case OLLAMA -> StrUtil.blankToDefault(cleanBaseUrl, DEFAULT_OLLAMA_BASE_URL);
         };
         return removeTrailingSlash(resolvedBaseUrl);

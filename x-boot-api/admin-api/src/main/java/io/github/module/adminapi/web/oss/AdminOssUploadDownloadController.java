@@ -59,7 +59,7 @@ public class AdminOssUploadDownloadController {
         UploadFileCheckResultEnum checkResult = UploadFileChecker.check(file,
                 // 默认只能上传1024MB之内的文件，且约束后缀名
                 UploadFileChecker.FILE_SIZE_1MB * 1024,
-                new String[]{"jpg", "png", "webp", "gif", "xlsx"});
+                new String[]{"jpg", "jpeg", "png", "webp", "gif", "pdf", "doc", "docx", "xls", "xlsx", "txt"});
         if (checkResult.isNotOK()) {
             throw new BusinessException(checkResult.getLabel());
         }

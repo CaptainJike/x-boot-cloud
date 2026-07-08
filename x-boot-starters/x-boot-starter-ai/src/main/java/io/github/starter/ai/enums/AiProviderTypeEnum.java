@@ -27,6 +27,11 @@ public enum AiProviderTypeEnum {
     DEEPSEEK("DEEPSEEK", "DeepSeek"),
 
     /**
+     * 智谱 AI OpenAI 兼容接口.
+     */
+    ZHIPU("ZHIPU", "智谱AI"),
+
+    /**
      * Ollama 本地模型.
      */
     OLLAMA("OLLAMA", "Ollama");
@@ -55,6 +60,9 @@ public enum AiProviderTypeEnum {
         if (StrUtil.equalsAny(upper,
                 "DASHSCOPE", "DASH_SCOPE", "QWEN", "TONGYI", "TONG_YI")) {
             return OPENAI_COMPATIBLE;
+        }
+        if (StrUtil.equalsAny(upper, "ZHI_PU", "BIGMODEL", "BIG_MODEL")) {
+            return ZHIPU;
         }
         try {
             return AiProviderTypeEnum.valueOf(upper);

@@ -48,6 +48,7 @@
         <lombok.version>1.18.34</lombok.version>
         <hutool.version>5.8.43</hutool.version>
         <guava.version>33.2.1-jre</guava.version>
+        <qdrant-client.version>1.18.1</qdrant-client.version>
         <sa-token.version>1.45.0</sa-token.version>
 
         <!-- https://mvnrepository.com/artifact/org.redisson/redisson-spring-boot-starter -->
@@ -152,6 +153,12 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.qdrant</groupId>
+                <artifactId>client</artifactId>
+                <version>${qdrant-client.version}</version>
             </dependency>
 
             <dependency>

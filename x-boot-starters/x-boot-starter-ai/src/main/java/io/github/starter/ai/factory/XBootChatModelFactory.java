@@ -40,6 +40,12 @@ public final class XBootChatModelFactory {
             "https://api.deepseek.com";
 
     /**
+     * 默认智谱 AI OpenAI 兼容接口地址.
+     */
+    private static final String DEFAULT_ZHIPU_BASE_URL =
+            "https://open.bigmodel.cn/api/paas/v4";
+
+    /**
      * 默认 DeepSeek 模型.
      */
     private static final String DEFAULT_DEEPSEEK_MODEL = "deepseek-chat";
@@ -76,6 +82,7 @@ public final class XBootChatModelFactory {
             case OPENAI -> createOpenAi(effectiveConfig);
             case OPENAI_COMPATIBLE -> createOpenAiCompatible(effectiveConfig);
             case DEEPSEEK -> createDeepSeek(effectiveConfig);
+            case ZHIPU -> createZhiPu(effectiveConfig);
             case OLLAMA -> createOllama(effectiveConfig);
         };
     }
@@ -101,6 +108,18 @@ public final class XBootChatModelFactory {
                 .baseUrl(resolveBaseUrl(modelConfig,
                         DEFAULT_DASHSCOPE_BASE_URL))
                 .model(resolveModelName(modelConfig, DEFAULT_QWEN_MODEL));
+        applyCommonOptions(options, modelConfig);
+        return OpenAiChatModel.builder()
+                .options(options.build())
+                .build();
+    }
+
+    private ChatModel createZhiPu(final AiModelConfig modelConfig) {
+        String modelName = requireModelName(modelConfig);
+        OpenAiChatOptions.Builder options = OpenAiChatOptions.builder()
+                .apiKey(resolveApiKey(modelConfig, AiProviderTypeEnum.ZHIPU))
+                .baseUrl(resolveBaseUrl(modelConfig, DEFAULT_ZHIPU_BASE_URL))
+                .model(modelName);
         applyCommonOptions(options, modelConfig);
         return OpenAiChatModel.builder()
                 .options(options.build())
@@ -172,6 +191,13 @@ public final class XBootChatModelFactory {
                                     final String defaultModelName) {
         return StrUtil.blankToDefault(modelConfig.getModelName(),
                 defaultModelName);
+    }
+
+    private String requireModelName(final AiModelConfig modelConfig) {
+        if (StrUtil.isBlank(modelConfig.getModelName())) {
+            throw new IllegalArgumentException("模型配置缺少 modelName");
+        }
+        return modelConfig.getModelName();
     }
 
 }

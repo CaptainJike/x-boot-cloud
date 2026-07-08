@@ -1,7 +1,8 @@
 package io.github.module.adminapi.config;
 
-import io.github.module.adminapi.interceptor.AdminSaTokenParseInterceptor;
 import cn.dev33.satoken.interceptor.SaInterceptor;
+import io.github.module.adminapi.interceptor.AdminSaTokenParseInterceptor;
+import io.github.module.adminapi.interceptor.DispatcherTypeSkippingInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -22,14 +23,14 @@ public class CustomInterceptorConfiguration implements WebMvcConfigurer {
         1. 通用请求头解析，设定用户、租户上下文
          */
         registry
-                .addInterceptor(new AdminSaTokenParseInterceptor())
+                .addInterceptor(new DispatcherTypeSkippingInterceptor(new AdminSaTokenParseInterceptor()))
                 .addPathPatterns("/**");
 
         /*
         2. 注解拦截器, 启用注解功能
          */
         registry
-                .addInterceptor(new SaInterceptor())
+                .addInterceptor(new DispatcherTypeSkippingInterceptor(new SaInterceptor()))
                 .addPathPatterns("/**");
     }
 }

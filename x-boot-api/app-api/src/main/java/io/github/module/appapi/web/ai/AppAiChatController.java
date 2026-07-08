@@ -20,8 +20,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
+/**
+ * APP-AI 历史示例对话接口.
+ *
+ * @deprecated 仅用于兼容 app-api 历史示例入口，不属于 Pig AI 后台 MVP 验收链路；
+ *             新能力统一从后台 AI 对话接口接入。
+ */
+@Deprecated(since = "1.0.0", forRemoval = false)
 @RestController
-@Tag(name = "AI 对话相关")
+@Tag(name = "APP 历史示例-AI 对话", description = "非 Pig AI 后台 MVP 入口，仅用于兼容 app-api 历史示例")
 @RequiredArgsConstructor
 @RequestMapping(ApiPrefixConstant.API_PREFIX_APP + ApiPrefixConstant.VERSION)
 @SaCheckLogin(type = AppStpUtil.TYPE)
@@ -29,13 +36,13 @@ public class AppAiChatController {
 
     private final AppAiChatService appAiChatService;
 
-    @Operation(summary = "普通对话")
+    @Operation(summary = "历史示例普通对话（非 MVP）", deprecated = true)
     @PostMapping(value = "/ai/chat")
     public ApiResult<AppAiChatBO> chat(@RequestBody @Valid AppAiChatDTO dto) {
         return ApiResult.data(appAiChatService.chat(dto));
     }
 
-    @Operation(summary = "流式对话")
+    @Operation(summary = "历史示例流式对话（非 MVP）", deprecated = true)
     @PostMapping(value = "/ai/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<AppAiChatStreamChunkBO>> stream(@RequestBody @Valid AppAiChatDTO dto) {
         return appAiChatService.stream(dto)

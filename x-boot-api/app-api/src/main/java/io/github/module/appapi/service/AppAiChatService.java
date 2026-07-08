@@ -1,187 +1,79 @@
 package io.github.module.appapi.service;
 
-import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.StrUtil;
 import io.github.framework.core.constant.BaseConstant;
-import io.github.framework.core.enums.EnabledStatusEnum;
-import io.github.framework.core.exception.BusinessException;
-import io.github.module.ai.enums.AiErrorEnum;
-import io.github.module.ai.facade.AiModelConfigFacade;
+import io.github.module.ai.facade.AiChatFacade;
+import io.github.module.ai.model.request.AdminAiChatDTO;
 import io.github.module.ai.model.request.AppAiChatDTO;
-import io.github.module.ai.model.response.AiModelConfigBO;
+import io.github.module.ai.model.response.AdminAiChatBO;
+import io.github.module.ai.model.response.AdminAiChatStreamChunkBO;
 import io.github.module.ai.model.response.AppAiChatBO;
 import io.github.module.ai.model.response.AppAiChatStreamChunkBO;
-import io.github.starter.ai.enums.AiProviderTypeEnum;
-import io.github.starter.ai.factory.XBootAiFactory;
-import io.github.starter.ai.vo.AiModelConfig;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.time.Duration;
-import java.util.UUID;
+import java.util.List;
 
 /**
- * APP-AI 对话编排服务.
+ * APP-AI 历史示例对话适配服务.
+ *
+ * @deprecated 仅用于兼容 app-api 历史示例入口，不属于 Pig AI 后台 MVP 验收链路；
+ *             新能力统一从 admin-api -> ai-facade -> ai-service 链路接入。
  */
+@Deprecated(since = "1.0.0", forRemoval = false)
 @RequiredArgsConstructor
 @Service
 public class AppAiChatService {
 
-    public static final String EVENT_MESSAGE = "message";
-    public static final String EVENT_DONE = "done";
-    public static final String EVENT_ERROR = "error";
-    public static final String DONE_MARKER = "[DONE]";
-
-    private final XBootAiFactory xBootAiFactory;
-
     @DubboReference(version = BaseConstant.Version.DUBBO_VERSION_V1, validation = BaseConstant.Dubbo.ENABLE_VALIDATION)
-    private AiModelConfigFacade aiModelConfigFacade;
+    private AiChatFacade aiChatFacade;
 
     /**
      * 普通对话.
      */
     public AppAiChatBO chat(AppAiChatDTO dto) {
-        RuntimeChatContext context = buildContext(dto, resolveConversationId(dto.getConversationId()));
-        String answer = xBootAiFactory.chat(dto.getContent(), context.runtimeConfig());
-
-        return AppAiChatBO.builder()
-                .conversationId(context.conversationId())
-                .modelConfigCode(context.modelConfig().getCode())
-                .providerType(context.modelConfig().getProviderType())
-                .modelName(context.modelConfig().getModelName())
-                .answer(answer)
-                .build();
+        return toAppChatBO(aiChatFacade.adminChat(toAdminDto(dto)));
     }
 
     /**
      * 流式对话.
      */
     public Flux<AppAiChatStreamChunkBO> stream(AppAiChatDTO dto) {
-        String conversationId = resolveConversationId(dto.getConversationId());
-        String messageId = newId();
-        return Flux.defer(() -> {
-            RuntimeChatContext context = buildContext(dto, conversationId);
-            return xBootAiFactory.streamChat(dto.getContent(), context.runtimeConfig())
-                    .map(content -> messageChunk(context, messageId, content))
-                    .concatWithValues(doneChunk(context, messageId));
-        }).onErrorResume(ex -> Flux.just(errorChunk(conversationId, messageId, ex)));
+        List<AdminAiChatStreamChunkBO> chunks = aiChatFacade.adminStream(toAdminDto(dto));
+        return Flux.fromIterable(chunks == null ? List.of() : chunks).map(this::toAppStreamChunkBO);
     }
 
-    private RuntimeChatContext buildContext(AppAiChatDTO dto, String conversationId) {
-        AiModelConfigBO modelConfig = resolveModelConfig(dto.getModelConfigCode());
-        return new RuntimeChatContext(conversationId, modelConfig, toRuntimeConfig(modelConfig));
-    }
-
-    private AiModelConfigBO resolveModelConfig(String modelConfigCode) {
-        String cleanCode = clean(modelConfigCode);
-        if (StrUtil.isNotBlank(cleanCode)) {
-            return aiModelConfigFacade.getEnabledConfigByCode(cleanCode, true);
-        }
-
-        AiModelConfigBO defaultConfig = aiModelConfigFacade.getDefaultEnabledConfig();
-        AiErrorEnum.NO_ENABLED_MODEL_CONFIG.assertNotNull(defaultConfig);
-        return defaultConfig;
-    }
-
-    private AiModelConfig toRuntimeConfig(AiModelConfigBO bo) {
-        AiErrorEnum.NO_ENABLED_MODEL_CONFIG.assertNotNull(bo);
-        AiProviderTypeEnum providerType = parseProviderType(bo.getProviderType());
-        String apiKey = resolveApiKey(bo);
-        if (providerType != AiProviderTypeEnum.OLLAMA) {
-            AiErrorEnum.MISSING_API_KEY.assertNotBlank(apiKey);
-        }
-
-        return new AiModelConfig()
-                .setProviderType(providerType)
-                .setBaseUrl(bo.getBaseUrl())
-                .setApiKey(apiKey)
-                .setModelName(bo.getModelName())
-                .setTemperature(bo.getTemperature())
-                .setTimeout(toDuration(bo.getTimeoutSeconds()))
-                .setEnabled(EnabledStatusEnum.ENABLED.getValue().equals(bo.getStatus()));
-    }
-
-    private AiProviderTypeEnum parseProviderType(String providerType) {
-        String cleanProviderType = clean(providerType);
-        AiErrorEnum.INVALID_PROVIDER_TYPE.assertNotBlank(cleanProviderType);
-        if (StrUtil.equalsAnyIgnoreCase(cleanProviderType,
-                "DASHSCOPE", "DASH_SCOPE", "QWEN", "TONGYI", "TONG_YI")) {
-            return AiProviderTypeEnum.OPENAI_COMPATIBLE;
-        }
-        try {
-            return AiProviderTypeEnum.valueOf(cleanProviderType.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BusinessException(AiErrorEnum.INVALID_PROVIDER_TYPE);
-        }
-    }
-
-    private AppAiChatStreamChunkBO messageChunk(RuntimeChatContext context, String messageId, String content) {
-        return chunk(context, messageId, EVENT_MESSAGE, content, false);
-    }
-
-    private AppAiChatStreamChunkBO doneChunk(RuntimeChatContext context, String messageId) {
-        return chunk(context, messageId, EVENT_DONE, DONE_MARKER, true);
-    }
-
-    private AppAiChatStreamChunkBO errorChunk(String conversationId, String messageId, Throwable ex) {
-        return AppAiChatStreamChunkBO.builder()
-                .event(EVENT_ERROR)
-                .messageId(messageId)
-                .conversationId(conversationId)
-                .content(StrUtil.blankToDefault(ex.getMessage(), "AI对话调用失败"))
-                .finish(true)
-                .timestamp(System.currentTimeMillis())
+    private AdminAiChatDTO toAdminDto(AppAiChatDTO dto) {
+        return AdminAiChatDTO.builder()
+                .conversationId(dto.getConversationId())
+                .modelConfigCode(dto.getModelConfigCode())
+                .content(dto.getContent())
                 .build();
     }
 
-    private AppAiChatStreamChunkBO chunk(RuntimeChatContext context,
-                                         String messageId,
-                                         String event,
-                                         String content,
-                                         boolean finish) {
-        return AppAiChatStreamChunkBO.builder()
-                .event(event)
-                .messageId(messageId)
-                .conversationId(context.conversationId())
-                .modelConfigCode(context.modelConfig().getCode())
-                .providerType(context.modelConfig().getProviderType())
-                .modelName(context.modelConfig().getModelName())
-                .content(content)
-                .finish(finish)
-                .timestamp(System.currentTimeMillis())
+    private AppAiChatBO toAppChatBO(AdminAiChatBO bo) {
+        return AppAiChatBO.builder()
+                .conversationId(bo.getConversationId())
+                .messageId(bo.getMessageId())
+                .modelConfigCode(bo.getModelConfigCode())
+                .providerType(bo.getProviderType())
+                .modelName(bo.getModelName())
+                .answer(bo.getAnswer())
                 .build();
     }
 
-    private String resolveApiKey(AiModelConfigBO bo) {
-        return bo.getApiKey();
-    }
-
-    private Duration toDuration(Long timeoutSeconds) {
-        if (timeoutSeconds == null) {
-            return null;
-        }
-        return Duration.ofSeconds(timeoutSeconds);
-    }
-
-    private String resolveConversationId(String conversationId) {
-        String cleanConversationId = clean(conversationId);
-        return StrUtil.blankToDefault(cleanConversationId, newId());
-    }
-
-    private String newId() {
-        return UUID.randomUUID().toString().replace("-", "");
-    }
-
-    private String clean(String value) {
-        return CharSequenceUtil.cleanBlank(value);
-    }
-
-    private record RuntimeChatContext(
-            String conversationId,
-            AiModelConfigBO modelConfig,
-            AiModelConfig runtimeConfig
-    ) {
+    private AppAiChatStreamChunkBO toAppStreamChunkBO(AdminAiChatStreamChunkBO bo) {
+        return AppAiChatStreamChunkBO.builder()
+                .event(bo.getEvent())
+                .messageId(bo.getMessageId())
+                .conversationId(bo.getConversationId())
+                .modelConfigCode(bo.getModelConfigCode())
+                .providerType(bo.getProviderType())
+                .modelName(bo.getModelName())
+                .content(bo.getContent())
+                .finish(bo.getFinish())
+                .timestamp(bo.getTimestamp())
+                .build();
     }
 }

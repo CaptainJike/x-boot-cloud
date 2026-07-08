@@ -47,6 +47,14 @@ public class AiModelConfigEntity extends BaseEntity<Long> {
     @TableField(value = "model_name")
     private String modelName;
 
+    @Schema(description = "支持的模态")
+    @TableField(value = "supported_modalities")
+    private String supportedModalities;
+
+    @Schema(description = "支持的能力")
+    @TableField(value = "supported_capabilities")
+    private String supportedCapabilities;
+
     @Schema(description = "温度参数")
     @TableField(value = "temperature")
     private Double temperature;

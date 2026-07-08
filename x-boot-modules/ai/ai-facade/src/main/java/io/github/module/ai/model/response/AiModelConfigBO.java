@@ -59,6 +59,12 @@ public class AiModelConfigBO implements Serializable {
     @Schema(description = "模型名称")
     private String modelName;
 
+    @Schema(description = "支持的模态，逗号分隔，例如 text,image")
+    private String supportedModalities;
+
+    @Schema(description = "支持的能力，逗号分隔，例如 chat,embedding")
+    private String supportedCapabilities;
+
     @Schema(description = "温度参数")
     private Double temperature;
 

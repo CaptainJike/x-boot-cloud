@@ -55,6 +55,14 @@ public class AdminInsertOrUpdateAiModelConfigDTO implements Serializable {
     @NotBlank(message = "模型名称不能为空")
     private String modelName;
 
+    @Schema(description = "支持的模态，逗号分隔，例如 text,image")
+    @Size(max = 64, message = "【支持的模态】最长64位")
+    private String supportedModalities;
+
+    @Schema(description = "支持的能力，逗号分隔，例如 chat,embedding")
+    @Size(max = 64, message = "【支持的能力】最长64位")
+    private String supportedCapabilities;
+
     @Schema(description = "温度参数")
     @DecimalMin(value = "0.0", message = "【温度参数】不能小于0")
     @DecimalMax(value = "2.0", message = "【温度参数】不能大于2")

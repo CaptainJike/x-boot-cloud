@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import io.github.framework.core.enums.ModelTypeEnum;
 import io.github.starter.ai.enums.AiProviderTypeEnum;
 import io.github.starter.ai.service.XBootAiService;
+import io.github.starter.ai.vo.AiChatRequest;
 import io.github.starter.ai.vo.AiModelConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,23 @@ public final class XBootAiFactory {
     }
 
     /**
+     * 同步多模态对话调用.
+     *
+     * @param request 对话请求
+     * @param modelConfig 模型配置
+     * @return 模型响应内容
+     */
+    public String chat(final AiChatRequest request,
+                       final AiModelConfig modelConfig) {
+        if (request == null || (StrUtil.isBlank(request.getText())
+                && (request.getMedia() == null || request.getMedia().isEmpty()))) {
+            throw new IllegalArgumentException("问题不能为空");
+        }
+        logModelConfig(modelConfig);
+        return aiService.chat(request, modelConfig);
+    }
+
+    /**
      * 流式对话调用.
      *
      * @param message 用户消息
@@ -56,6 +74,23 @@ public final class XBootAiFactory {
         }
         logModelConfig(modelConfig);
         return aiService.stream(message, modelConfig);
+    }
+
+    /**
+     * 流式多模态对话调用.
+     *
+     * @param request 对话请求
+     * @param modelConfig 模型配置
+     * @return 模型响应流
+     */
+    public Flux<String> streamChat(final AiChatRequest request,
+                                   final AiModelConfig modelConfig) {
+        if (request == null || (StrUtil.isBlank(request.getText())
+                && (request.getMedia() == null || request.getMedia().isEmpty()))) {
+            return Flux.error(new IllegalArgumentException("问题不能为空"));
+        }
+        logModelConfig(modelConfig);
+        return aiService.stream(request, modelConfig);
     }
 
     /**

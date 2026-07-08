@@ -22,6 +22,9 @@ public class AppAiChatBO implements Serializable {
     @Schema(description = "会话ID")
     private String conversationId;
 
+    @Schema(description = "消息ID")
+    private String messageId;
+
     @Schema(description = "AI模型配置编码")
     private String modelConfigCode;
 

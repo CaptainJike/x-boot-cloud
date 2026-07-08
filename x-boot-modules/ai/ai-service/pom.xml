@@ -21,6 +21,12 @@
             <version>${revision}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.module</groupId>
+            <artifactId>oss-facade</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 脚手架starter -->
         <dependency>
             <groupId>io.github.framework</groupId>
@@ -51,12 +57,46 @@
 
         <dependency>
             <groupId>io.github.framework</groupId>
+            <artifactId>x-boot-starter-tenant</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.framework</groupId>
             <artifactId>x-boot-starter-dubbo</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.github.framework</groupId>
             <artifactId>x-boot-starter-ai</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qdrant</groupId>
+            <artifactId>client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>5.4.1</version>
         </dependency>
 
         <dependency>
