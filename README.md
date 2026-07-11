@@ -42,6 +42,7 @@ x-boot-cloud 是一个面向生产级场景的 Spring Boot / Spring Cloud 微服
 - **Java 版本**: 21
 - **Spring Boot**: 4.0.7
 - **Spring Cloud**: 2025.1.2
+- **Learning OS V1 本地联调**: `docs/project/LEARNING_OS_V1_LOCAL_SETUP.md`
 - **主要模块**:
     - `x-boot-starters` - 基础能力 starter 集合
     - `x-boot-api` - API 接口定义（admin-api, app-api）

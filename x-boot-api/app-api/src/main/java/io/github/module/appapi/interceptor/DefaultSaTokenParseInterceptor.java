@@ -5,8 +5,8 @@ import io.github.framework.core.context.TenantContextHolder;
 import io.github.framework.core.context.UserContext;
 import io.github.framework.core.context.UserContextHolder;
 import io.github.framework.web.util.IPUtil;
+import io.github.module.appapi.util.AppStpUtil;
 import cn.dev33.satoken.session.SaSession;
-import cn.dev33.satoken.stp.StpUtil;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
@@ -29,8 +29,8 @@ public class DefaultSaTokenParseInterceptor implements AsyncHandlerInterceptor {
         }
 
         // SA-Token 会自动从请求头中解析 token，所以这里可以直接拿到对应 session，从而取出业务字段
-        if (StpUtil.isLogin()) {
-            setContextsFromSaSession(StpUtil.getSession(), request);
+        if (AppStpUtil.isLogin()) {
+            setContextsFromSaSession(AppStpUtil.getSession(), request);
             if (log.isDebugEnabled()) {
                 log.debug("[SA-Token] 从请求头解析出用户上下文 >> {}", UserContextHolder.getUserContext());
             }
@@ -51,6 +51,11 @@ public class DefaultSaTokenParseInterceptor implements AsyncHandlerInterceptor {
     public static void setContextsFromSaSession(SaSession session, HttpServletRequest request) {
         // 赋值用户上下文
         UserContext userContext = (UserContext) session.get(UserContext.CAMEL_NAME);
+        if (userContext == null) {
+            UserContextHolder.clear();
+            TenantContextHolder.clear();
+            return;
+        }
 
         // 获取用户公网IP
         // 先按逗号分隔后，再取第index个IP地址（从0开始）；兼容启用了云防护盾CDN的服务器（可能获取到的IP会带上中间代理节点的IP地址）

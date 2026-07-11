@@ -1,0 +1,32 @@
+{
+  "templateCode": "mcp",
+  "name": "MCP Learning Path",
+  "description": "理解模型上下文协议与工具接入边界。",
+  "keywords": ["mcp", "model context protocol", "tool", "resource"],
+  "nodes": [
+    {
+      "nodeCode": "tool-call-basics",
+      "title": "工具调用基础",
+      "description": "理解模型调用工具的原因和限制。",
+      "learningObjective": "能设计一个简单工具 schema。",
+      "whyItMatters": "MCP 的能力对模型来说最终都要映射到工具或资源。",
+      "estimatedMinutes": 90,
+      "difficultyLevel": 2,
+      "verificationMethod": "写一个函数定义并说明参数约束。",
+      "completionCriteria": "能解释工具调用和普通文本回复的区别。",
+      "prerequisiteNodeCodes": []
+    },
+    {
+      "nodeCode": "mcp-protocol",
+      "title": "MCP 协议角色",
+      "description": "理解 client、server、resource、tool 的职责。",
+      "learningObjective": "能说清楚协议中的数据流和控制流。",
+      "whyItMatters": "这是后续做插件和外部能力集成的基础。",
+      "estimatedMinutes": 120,
+      "difficultyLevel": 3,
+      "verificationMethod": "画出一个模型通过 MCP 获取资源再调用工具的流程图。",
+      "completionCriteria": "能区分协议层和业务层的职责边界。",
+      "prerequisiteNodeCodes": ["tool-call-basics"]
+    }
+  ]
+}

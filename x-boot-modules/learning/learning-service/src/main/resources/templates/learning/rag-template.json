@@ -1,0 +1,44 @@
+{
+  "templateCode": "rag",
+  "name": "RAG Learning Path",
+  "description": "围绕检索增强生成的最小知识体系。",
+  "keywords": ["rag", "retrieval", "embedding", "vector"],
+  "nodes": [
+    {
+      "nodeCode": "llm-basics",
+      "title": "LLM 与上下文窗口",
+      "description": "理解大模型输入输出和上下文限制。",
+      "learningObjective": "能解释为什么单纯聊天不能稳定记住外部知识。",
+      "whyItMatters": "RAG 的出发点就是解决模型知识边界问题。",
+      "estimatedMinutes": 60,
+      "difficultyLevel": 1,
+      "verificationMethod": "比较“直接问模型”和“带资料问模型”的差异。",
+      "completionCriteria": "能说清上下文窗口和知识时效的限制。",
+      "prerequisiteNodeCodes": []
+    },
+    {
+      "nodeCode": "embedding-vector",
+      "title": "Embedding 与向量表示",
+      "description": "理解文本如何被转成向量，以及相似度的意义。",
+      "learningObjective": "能解释 embedding 不是压缩摘要。",
+      "whyItMatters": "检索质量很大程度由向量表示决定。",
+      "estimatedMinutes": 90,
+      "difficultyLevel": 2,
+      "verificationMethod": "举例说明语义相近但字面不同的文本如何被召回。",
+      "completionCriteria": "能清楚区分 embedding 模型和生成模型。",
+      "prerequisiteNodeCodes": ["llm-basics"]
+    },
+    {
+      "nodeCode": "retrieval-pipeline",
+      "title": "检索流程",
+      "description": "理解切片、索引、召回、重排、上下文注入。",
+      "learningObjective": "能画出完整的 RAG pipeline。",
+      "whyItMatters": "很多 RAG 失败并不是模型差，而是检索管道设计有问题。",
+      "estimatedMinutes": 120,
+      "difficultyLevel": 3,
+      "verificationMethod": "用自己的语言解释每一步的输入输出。",
+      "completionCriteria": "能指出不同步骤的常见失真点。",
+      "prerequisiteNodeCodes": ["embedding-vector"]
+    }
+  ]
+}

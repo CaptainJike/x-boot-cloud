@@ -1,0 +1,24 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+x:
+  crud:
+    db-type: mysql
+  tenant:
+    enabled: false
+  web:
+    logging:
+      enabled: false
+  knife4j:
+    title: Learning OS Local
+    description: Local profile for Learning OS V1
+    version: local

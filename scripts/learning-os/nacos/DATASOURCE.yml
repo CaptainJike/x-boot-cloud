@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    dynamic:
+      primary: master
+      strict: true
+      datasource:
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://${LEARNING_DB_HOST:127.0.0.1}:${LEARNING_DB_PORT:3306}/${LEARNING_DB_NAME:x_boot_learning_os}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+          username: ${LEARNING_DB_USERNAME:root}
+          password: ${LEARNING_DB_PASSWORD:root}

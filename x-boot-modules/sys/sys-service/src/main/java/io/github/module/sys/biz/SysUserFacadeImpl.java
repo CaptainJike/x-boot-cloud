@@ -101,4 +101,5 @@ public class SysUserFacadeImpl implements SysUserFacade {
     public void adminUpdateCurrentUserAvatar(AdminUpdateCurrentSysUserAvatarDTO dto) {
         sysUserService.adminUpdateCurrentUserAvatar(dto);
     }
+
 }

@@ -1,0 +1,32 @@
+{
+  "templateCode": "agent",
+  "name": "Agent Learning Path",
+  "description": "理解 Agent 的规划、执行、反思与记忆。",
+  "keywords": ["agent", "planner", "executor", "reasoning"],
+  "nodes": [
+    {
+      "nodeCode": "workflow-vs-agent",
+      "title": "工作流与 Agent 的区别",
+      "description": "理解确定性流程和动态决策流程的边界。",
+      "learningObjective": "能判断一个问题适合工作流还是 Agent。",
+      "whyItMatters": "做产品时避免“所有问题都上 Agent”的误区。",
+      "estimatedMinutes": 90,
+      "difficultyLevel": 2,
+      "verificationMethod": "列举两个适合工作流和两个适合 Agent 的场景。",
+      "completionCriteria": "能解释动态规划何时真正有价值。",
+      "prerequisiteNodeCodes": []
+    },
+    {
+      "nodeCode": "agent-loop",
+      "title": "Agent 循环",
+      "description": "理解观察、思考、行动、反馈的循环。",
+      "learningObjective": "能设计一个最小 Agent loop。",
+      "whyItMatters": "这是多 Agent 协作前必须掌握的基石。",
+      "estimatedMinutes": 120,
+      "difficultyLevel": 3,
+      "verificationMethod": "描述一次完整循环每一轮的输入输出。",
+      "completionCriteria": "能指出 Agent 容易失控的边界。",
+      "prerequisiteNodeCodes": ["workflow-vs-agent"]
+    }
+  ]
+}

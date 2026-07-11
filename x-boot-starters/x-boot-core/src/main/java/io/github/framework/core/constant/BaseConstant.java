@@ -16,6 +16,7 @@ public final class BaseConstant {
 
         public static final String ENABLE_VALIDATION = "true";
         public static final int TIMEOUT = 10000;
+        public static final int AI_TIMEOUT = 60000;
         public static final int RETRIES = -1;
         public static final int RPC_EXCEPTION_RESPONSE_CODE = 1;
     }

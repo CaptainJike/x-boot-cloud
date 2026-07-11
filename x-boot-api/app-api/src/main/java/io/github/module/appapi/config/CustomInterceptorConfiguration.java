@@ -27,7 +27,13 @@ public class CustomInterceptorConfiguration implements WebMvcConfigurer {
          */
         registry
                 .addInterceptor(new DefaultSaTokenParseInterceptor())
-                .addPathPatterns("/**");
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/app-api/v1/auth/github/start",
+                        "/app-api/v1/auth/github/callback",
+                        "/app/v1/auth/github/start",
+                        "/app/v1/auth/github/callback"
+                );
 
         /*
         2. 路由拦截器, 使几乎所有接口都需要登录
@@ -40,6 +46,12 @@ public class CustomInterceptorConfiguration implements WebMvcConfigurer {
                         handler -> AppStpUtil.checkLogin()
                 ))
                 .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/app-api/v1/auth/github/start",
+                        "/app-api/v1/auth/github/callback",
+                        "/app/v1/auth/github/start",
+                        "/app/v1/auth/github/callback"
+                )
                 .excludePathPatterns(baseProperties.getSecurity().getExcludeRoutes());
     }
 }

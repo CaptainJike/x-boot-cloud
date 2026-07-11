@@ -1,0 +1,19 @@
+dubbo:
+  application:
+    qos-enable: false
+    serialize-check-status: WARN
+  registry:
+    address: nacos://${NACOS_DISCOVERY_SERVER_ADDR:127.0.0.1:8848}
+    parameters:
+      namespace: ${NACOS_DISCOVERY_NAMESPACE:}
+      group: ${NACOS_DISCOVERY_GROUP:DEFAULT_GROUP}
+  protocol:
+    name: dubbo
+    port: -1
+  consumer:
+    check: false
+    timeout: 30000
+    retries: 0
+  provider:
+    timeout: 30000
+    validation: true

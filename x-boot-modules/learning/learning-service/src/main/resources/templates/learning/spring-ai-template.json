@@ -1,0 +1,116 @@
+{
+  "templateCode": "spring-ai",
+  "name": "Spring AI Learning Path",
+  "description": "从 Spring Boot 基础逐步进入 Spring AI、Prompt、MCP、Agent 和 RAG。",
+  "keywords": ["spring ai", "spring", "rag", "mcp", "agent"],
+  "nodes": [
+    {
+      "nodeCode": "spring-boot-foundation",
+      "title": "Spring Boot 基础",
+      "description": "掌握 Spring Boot 项目结构、自动配置和常见开发方式。",
+      "learningObjective": "能独立搭建和运行一个 Spring Boot 项目。",
+      "whyItMatters": "Spring AI 的一切能力都跑在 Spring 应用上下文中。",
+      "estimatedMinutes": 120,
+      "difficultyLevel": 1,
+      "verificationMethod": "创建一个可运行的 REST 项目并完成一个简单接口。",
+      "completionCriteria": "能独立启动服务并解释自动配置做了什么。",
+      "prerequisiteNodeCodes": []
+    },
+    {
+      "nodeCode": "rest-api",
+      "title": "REST API 与 HTTP 调用",
+      "description": "理解控制器、请求响应、JSON 序列化和 HTTP 基础。",
+      "learningObjective": "能设计并实现一个清晰的 REST API。",
+      "whyItMatters": "模型调用、工具调用和业务接口编排都依赖这一层。",
+      "estimatedMinutes": 90,
+      "difficultyLevel": 1,
+      "verificationMethod": "实现一个带请求体验证的接口。",
+      "completionCriteria": "能解释请求参数、响应对象和错误处理的职责。",
+      "prerequisiteNodeCodes": ["spring-boot-foundation"]
+    },
+    {
+      "nodeCode": "openai-api",
+      "title": "OpenAI Compatible API 基础",
+      "description": "理解模型、消息、temperature、token 和调用方式。",
+      "learningObjective": "能用 Java 发起一次模型调用并理解请求结构。",
+      "whyItMatters": "Spring AI 是对模型调用的上层抽象，底层概念必须清楚。",
+      "estimatedMinutes": 90,
+      "difficultyLevel": 2,
+      "verificationMethod": "写一个最小示例调用模型并打印结果。",
+      "completionCriteria": "能解释 system、user、assistant 消息各自的作用。",
+      "prerequisiteNodeCodes": ["rest-api"]
+    },
+    {
+      "nodeCode": "prompt-design",
+      "title": "Prompt 设计与结构化输出",
+      "description": "学会为模型提供上下文、约束和 JSON 输出结构。",
+      "learningObjective": "能设计稳定的结构化 Prompt。",
+      "whyItMatters": "Learning OS 的地图生成、Tutor 决策和 Reflection 都依赖结构化输出。",
+      "estimatedMinutes": 120,
+      "difficultyLevel": 2,
+      "verificationMethod": "让模型稳定返回一个符合 schema 的 JSON。",
+      "completionCriteria": "能解释为何模型会偏离输出结构，以及如何兜底。",
+      "prerequisiteNodeCodes": ["openai-api"]
+    },
+    {
+      "nodeCode": "function-calling",
+      "title": "Function Calling 与工具调用",
+      "description": "理解模型如何选择工具以及参数如何被约束。",
+      "learningObjective": "能设计一个简单函数并让模型安全调用。",
+      "whyItMatters": "MCP 和 Agent 的很多能力都建立在工具调用范式之上。",
+      "estimatedMinutes": 100,
+      "difficultyLevel": 3,
+      "verificationMethod": "定义一个工具 schema 并验证模型能正确产出参数。",
+      "completionCriteria": "能说明 tool selection、arguments 和 execution boundary。",
+      "prerequisiteNodeCodes": ["prompt-design"]
+    },
+    {
+      "nodeCode": "mcp-core",
+      "title": "MCP 核心概念",
+      "description": "理解模型上下文协议的资源、工具、会话与边界。",
+      "learningObjective": "能说清楚 MCP 解决了什么问题。",
+      "whyItMatters": "它是 Agent 与外部能力标准化接入的重要基础。",
+      "estimatedMinutes": 90,
+      "difficultyLevel": 3,
+      "verificationMethod": "用自己的话画出模型、客户端、服务端的交互。",
+      "completionCriteria": "能区分 prompt、tool、resource 三类职责。",
+      "prerequisiteNodeCodes": ["function-calling"]
+    },
+    {
+      "nodeCode": "agent-basics",
+      "title": "Agent 基础",
+      "description": "理解规划、执行、观察、记忆和多轮决策。",
+      "learningObjective": "能解释 Agent 与普通聊天机器人的差别。",
+      "whyItMatters": "Learning OS 后续多 Agent 协作要基于这些模型。",
+      "estimatedMinutes": 120,
+      "difficultyLevel": 3,
+      "verificationMethod": "设计一个最小 Agent 循环并说明每一轮输入输出。",
+      "completionCriteria": "能说清楚何时需要 Agent，何时只要工作流即可。",
+      "prerequisiteNodeCodes": ["mcp-core"]
+    },
+    {
+      "nodeCode": "rag-foundation",
+      "title": "RAG 基础",
+      "description": "理解检索、召回、上下文注入和生成的分工。",
+      "learningObjective": "能解释 RAG 为什么不是“把资料喂给模型”。",
+      "whyItMatters": "长期记忆和知识网络都会建立在 RAG 的正确理解之上。",
+      "estimatedMinutes": 120,
+      "difficultyLevel": 3,
+      "verificationMethod": "用示意图解释 embedding、召回和答案生成的流程。",
+      "completionCriteria": "能判断一个问题是知识缺失还是推理缺失。",
+      "prerequisiteNodeCodes": ["openai-api"]
+    },
+    {
+      "nodeCode": "learning-os-practice",
+      "title": "用 Spring AI 实现 Learning OS 闭环",
+      "description": "把地图生成、Tutor 诊断和 Reflection 串成一个最小可运行系统。",
+      "learningObjective": "能实现一个具备闭环的 AI 学习原型。",
+      "whyItMatters": "知识最终要落到产品和系统设计上，才能形成自己的模型。",
+      "estimatedMinutes": 180,
+      "difficultyLevel": 4,
+      "verificationMethod": "完成一个最小原型并给出演示路径。",
+      "completionCriteria": "能解释 V1 为什么只做闭环，不急着做完整平台。",
+      "prerequisiteNodeCodes": ["agent-basics", "rag-foundation"]
+    }
+  ]
+}

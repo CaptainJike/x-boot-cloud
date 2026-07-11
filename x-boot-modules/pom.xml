@@ -10,6 +10,7 @@
 
     <modules>
         <module>ai</module>
+        <module>learning</module>
         <module>oss</module>
         <module>sys</module>
     </modules>
