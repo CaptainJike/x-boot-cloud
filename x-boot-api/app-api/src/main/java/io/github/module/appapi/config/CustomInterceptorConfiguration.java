@@ -31,8 +31,14 @@ public class CustomInterceptorConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/app-api/v1/auth/github/start",
                         "/app-api/v1/auth/github/callback",
+                        "/app-api/v1/auth/email/code",
+                        "/app-api/v1/auth/email/login",
+                        "/app-api/v1/auth/email/register",
                         "/app/v1/auth/github/start",
-                        "/app/v1/auth/github/callback"
+                        "/app/v1/auth/github/callback",
+                        "/app/v1/auth/email/code",
+                        "/app/v1/auth/email/login",
+                        "/app/v1/auth/email/register"
                 );
 
         /*
@@ -49,8 +55,14 @@ public class CustomInterceptorConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/app-api/v1/auth/github/start",
                         "/app-api/v1/auth/github/callback",
+                        "/app-api/v1/auth/email/code",
+                        "/app-api/v1/auth/email/login",
+                        "/app-api/v1/auth/email/register",
                         "/app/v1/auth/github/start",
-                        "/app/v1/auth/github/callback"
+                        "/app/v1/auth/github/callback",
+                        "/app/v1/auth/email/code",
+                        "/app/v1/auth/email/login",
+                        "/app/v1/auth/email/register"
                 )
                 .excludePathPatterns(baseProperties.getSecurity().getExcludeRoutes());
     }

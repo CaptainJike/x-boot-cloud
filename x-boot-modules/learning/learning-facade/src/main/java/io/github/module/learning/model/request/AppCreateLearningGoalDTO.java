@@ -1,9 +1,11 @@
 package io.github.module.learning.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,4 +46,23 @@ public class AppCreateLearningGoalDTO implements Serializable {
     @NotBlank(message = "偏好学习风格不能为空")
     @Size(max = 500, message = "【偏好学习风格】最长500位")
     private String preferredLearningStyle;
+
+    @Schema(description = "Goal Brief 草稿")
+    @Valid
+    private AppGoalBriefDTO brief;
+
+    @Schema(description = "来源类型")
+    @Pattern(regexp = "manual|ai|goal_template|map_template|starter_template", message = "来源类型无效")
+    private String sourceType;
+
+    @Schema(description = "选中的目标模板ID")
+    @Size(max = 64, message = "【目标模板ID】最长64位")
+    private String goalTemplateId;
+
+    @Schema(description = "选中的地图模板ID")
+    @Size(max = 64, message = "【地图模板ID】最长64位")
+    private String mapTemplateId;
+
+    @Schema(description = "是否同时保存为目标模板")
+    private Boolean saveGoalTemplate;
 }

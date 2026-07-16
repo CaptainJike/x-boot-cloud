@@ -6,6 +6,7 @@ import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.json.JSONUtil;
 import io.github.module.learning.entity.DailyDigestEntity;
 import io.github.module.learning.entity.GrowthSnapshotEntity;
+import io.github.module.learning.entity.LearningEventEntity;
 import io.github.module.learning.entity.LearningGoalEntity;
 import io.github.module.learning.entity.LearningMapEntity;
 import io.github.module.learning.entity.LearningMapNodeEntity;
@@ -119,16 +120,58 @@ public class LearningAssembler {
         return bo;
     }
 
-    public GrowthTimelineBO toGrowthTimelineBO(List<GrowthSnapshotEntity> snapshots) {
-        List<GrowthTimelineItemBO> items = CollUtil.emptyIfNull(snapshots).stream()
-                .sorted((a, b) -> b.getSnapshotDate().compareTo(a.getSnapshotDate()))
-                .map(snapshot -> GrowthTimelineItemBO.builder()
-                        .snapshotDate(snapshot.getSnapshotDate())
-                        .eventType(snapshot.getEventType())
-                        .title(snapshot.getTitle())
-                        .summary(snapshot.getSummary())
-                        .goalId(snapshot.getGoalId())
-                        .build())
+    public GrowthTimelineItemBO toGrowthTimelineItemBO(GrowthSnapshotEntity snapshot) {
+        return GrowthTimelineItemBO.builder()
+                .snapshotDate(snapshot.getSnapshotDate())
+                .recordedAt(snapshot.getCreatedAt())
+                .eventType(snapshot.getEventType())
+                .eventSource("GROWTH")
+                .eventDetailType(snapshot.getEventType())
+                .title(snapshot.getTitle())
+                .summary(snapshot.getSummary())
+                .goalId(snapshot.getGoalId())
+                .build();
+    }
+
+    public GrowthTimelineItemBO toGrowthTimelineItemBO(LearningEventEntity event) {
+        return GrowthTimelineItemBO.builder()
+                .snapshotDate(event.getEventAt() == null ? null : event.getEventAt().toLocalDate())
+                .recordedAt(event.getEventAt())
+                .eventType(event.getEventSource())
+                .eventSource(event.getEventSource())
+                .eventStatus(event.getEventStatus())
+                .eventDetailType(event.getEventType())
+                .title(event.getTitle())
+                .summary(event.getSummary())
+                .goalId(event.getGoalId())
+                .relatedEntityType(event.getRelatedEntityType())
+                .relatedEntityId(event.getRelatedEntityId())
+                .build();
+    }
+
+    public GrowthTimelineBO toGrowthTimelineBO(List<GrowthTimelineItemBO> sourceItems) {
+        List<GrowthTimelineItemBO> items = CollUtil.emptyIfNull(sourceItems).stream()
+                .sorted((left, right) -> {
+                    if (left.getRecordedAt() != null && right.getRecordedAt() != null) {
+                        return right.getRecordedAt().compareTo(left.getRecordedAt());
+                    }
+                    if (left.getRecordedAt() != null) {
+                        return -1;
+                    }
+                    if (right.getRecordedAt() != null) {
+                        return 1;
+                    }
+                    if (left.getSnapshotDate() == null && right.getSnapshotDate() == null) {
+                        return 0;
+                    }
+                    if (left.getSnapshotDate() == null) {
+                        return 1;
+                    }
+                    if (right.getSnapshotDate() == null) {
+                        return -1;
+                    }
+                    return right.getSnapshotDate().compareTo(left.getSnapshotDate());
+                })
                 .toList();
 
         List<String> cognitiveChanges = items.stream()

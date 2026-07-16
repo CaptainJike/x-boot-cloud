@@ -37,6 +37,7 @@ public class LearningTutorService {
     private final TutorTurnMapper tutorTurnMapper;
     private final LearningGoalService learningGoalService;
     private final LearningAiService learningAiService;
+    private final LearningEventService learningEventService;
     private final LearningAssembler learningAssembler;
 
     @Transactional(rollbackFor = Exception.class)
@@ -82,6 +83,7 @@ public class LearningTutorService {
                 .nodeCompleted(Boolean.TRUE.equals(decision.getNodeCompleted()) ? 1 : 0)
                 .build();
         tutorTurnMapper.insert(firstTurn);
+        learningEventService.recordTutorSessionStarted(goalEntity, nodeEntity, sessionEntity, firstTurn);
 
         return learningAssembler.toTutorSessionBO(sessionEntity, nodeEntity, List.of(firstTurn));
     }
@@ -141,6 +143,7 @@ public class LearningTutorService {
         tutorTurnMapper.insert(turnEntity);
 
         updateLearningProgress(goalEntity, nodeEntity, turnEntity);
+        learningEventService.recordTutorTurn(goalEntity, nodeEntity, turnEntity);
         return learningAssembler.toTutorTurnBO(turnEntity);
     }
 

@@ -25,4 +25,17 @@ public interface LearnerAccountMapper extends BaseMapper<LearnerAccountEntity> {
             LIMIT 1
             """)
     LearnerAccountEntity getByGithubUserId(@Param("githubUserId") String githubUserId);
+
+    /**
+     * 按邮箱查询学习者账号，忽略行级租户拦截器.
+     */
+    @InterceptorIgnore(tenantLine = "true")
+    @Select("""
+            SELECT *
+            FROM learner_account
+            WHERE del_flag = 0
+              AND email = #{email}
+            LIMIT 1
+            """)
+    LearnerAccountEntity getByEmail(@Param("email") String email);
 }

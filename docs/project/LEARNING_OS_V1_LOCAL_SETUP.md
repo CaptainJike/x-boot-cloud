@@ -70,11 +70,19 @@ What gets imported:
 
 Database name defaults to `x_boot_learning_os`.
 
-If you prefer manual import, run from repo root:
+The script imports the canonical SQL files from each module directly, so newly added learning tables do not require a duplicated aggregate SQL file.
+
+If you prefer manual import, create/select `x_boot_learning_os`, then import these files in order:
 
 ```bash
-mysql -u root -p < scripts/learning-os/sql/init_learning_os_v1.sql
+mysql -u root -p x_boot_learning_os < x-boot-modules/sys/sys-service/src/main/resources/sql/x_boot_sys.sql
+mysql -u root -p x_boot_learning_os < x-boot-modules/ai/ai-service/src/main/resources/sql/x_boot_ai.sql
+mysql -u root -p x_boot_learning_os < x-boot-modules/learning/learning-service/src/main/resources/sql/x_boot_learning.sql
+mysql -u root -p x_boot_learning_os < docs/project/AI_MODEL_CONFIG_INIT_SQL.sql
 ```
+
+If the database was initialized before email authentication was added, run
+`docs/project/LEARNING_OS_EMAIL_AUTH_MIGRATION.sql` once before starting `app-api`.
 
 ## 4. Publish Nacos config
 
@@ -169,7 +177,7 @@ Recommended smoke test:
 2. Click GitHub login
 3. Finish OAuth callback
 4. Create a goal with `学习 Spring AI`
-5. Verify `Today`, `Map`, `Tutor`, `Reflection`, `Growth`
+5. Verify `Today`, `Map`, `Tutor`, `Practice`, `Reflection`, `Growth`
 
 Expected behavior:
 
@@ -177,7 +185,8 @@ Expected behavior:
 2. First login also creates an empty `learner_profile`
 3. Goal creation generates a map with objectives, verification method, completion criteria
 4. Tutor starts with diagnosis before explanation
-5. Reflection creates a daily digest and growth snapshot
+5. Practice loads server-generated tasks and saves attempts with a server version
+6. Reflection creates a daily digest and growth snapshot
 
 ## 9. AI fallback behavior
 

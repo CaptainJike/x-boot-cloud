@@ -35,6 +35,7 @@ public class LearningReflectionService {
     private final GrowthSnapshotMapper growthSnapshotMapper;
     private final LearningGoalService learningGoalService;
     private final LearningAiService learningAiService;
+    private final LearningEventService learningEventService;
     private final LearningAssembler learningAssembler;
 
     @Transactional(rollbackFor = Exception.class)
@@ -83,6 +84,7 @@ public class LearningReflectionService {
                 .build();
         dailyDigestMapper.insert(digestEntity);
 
+        learningEventService.recordReflectionSubmitted(goalEntity, reflectionEntity, digestEntity);
         persistGrowthSnapshots(userId, goalEntity == null ? null : goalEntity.getId(), summary);
         return learningAssembler.toReflectionBO(reflectionEntity, digestEntity);
     }

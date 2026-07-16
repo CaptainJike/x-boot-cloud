@@ -3,6 +3,8 @@ package io.github.module.learning.biz;
 import io.github.framework.core.constant.BaseConstant;
 import io.github.module.learning.facade.LearningGoalFacade;
 import io.github.module.learning.model.request.AppCreateLearningGoalDTO;
+import io.github.module.learning.model.request.AppGoalDraftAssistDTO;
+import io.github.module.learning.model.response.GoalDraftAssistBO;
 import io.github.module.learning.model.response.LearningMapBO;
 import io.github.module.learning.model.response.TodayLearningBO;
 import io.github.module.learning.service.LearningGoalService;
@@ -23,6 +25,11 @@ public class LearningGoalFacadeImpl implements LearningGoalFacade {
     @Override
     public LearningMapBO createGoal(AppCreateLearningGoalDTO dto) {
         return learningGoalService.createGoal(dto);
+    }
+
+    @Override
+    public GoalDraftAssistBO assistGoalDraft(AppGoalDraftAssistDTO dto) {
+        return learningGoalService.assistGoalDraft(dto);
     }
 
     @Override

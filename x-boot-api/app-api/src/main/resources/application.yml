@@ -2,6 +2,19 @@ spring:
   application:
     # 微服务应用名
     name: app-api
+  mail:
+    # 邮箱验证码服务配置；生产环境请通过 Nacos 或环境变量注入，不要提交真实密码
+    host: ${LEARNING_MAIL_HOST:}
+    port: ${LEARNING_MAIL_PORT:587}
+    username: ${LEARNING_MAIL_USERNAME:}
+    password: ${LEARNING_MAIL_PASSWORD:}
+    from: ${LEARNING_MAIL_FROM:${LEARNING_MAIL_USERNAME:}}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   cloud:
     nacos:
       discovery:

@@ -1,5 +1,6 @@
 package io.github.framework.crud.handler;
 
+import io.github.framework.core.constant.BaseConstant;
 import io.github.framework.core.context.TenantContextHolder;
 import io.github.framework.core.context.UserContextHolder;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
@@ -16,7 +17,11 @@ public class MybatisPlusAutoFillColumnHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        this.strictInsertFill(metaObject, ENTITY_FIELD_TENANT_ID, Long.class, TenantContextHolder.getTenantId());
+        Long tenantId = TenantContextHolder.getTenantId();
+        if (tenantId == null) {
+            tenantId = BaseConstant.Tenant.DEFAULT_PRIVILEGED_TENANT_ID;
+        }
+        this.strictInsertFill(metaObject, ENTITY_FIELD_TENANT_ID, Long.class, tenantId);
         this.strictInsertFill(metaObject, ENTITY_FIELD_CREATED_AT, LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, ENTITY_FIELD_CREATED_BY, String.class, UserContextHolder.getUserName());
 

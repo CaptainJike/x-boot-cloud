@@ -10,7 +10,11 @@ import io.github.framework.core.constant.ApiPrefixConstant;
 import io.github.framework.web.model.response.ApiResult;
 import io.github.module.learning.facade.LearningLearnerFacade;
 import io.github.module.appapi.model.interior.GithubUserProfile;
+import io.github.module.appapi.model.request.AppEmailAuthDTO;
+import io.github.module.appapi.model.request.AppEmailCodeScene;
+import io.github.module.appapi.model.request.AppSendEmailCodeDTO;
 import io.github.module.appapi.model.response.AppAuthLoginVO;
+import io.github.module.appapi.service.AppEmailCodeService;
 import io.github.module.appapi.service.AppGithubOAuthService;
 import io.github.module.appapi.util.AppStpUtil;
 import io.github.module.learning.model.request.AppGithubLoginDTO;
@@ -18,11 +22,13 @@ import io.github.module.learning.model.response.AppLearnerLoginBO;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +43,8 @@ import java.util.Set;
 public class AppAuthController {
 
     private final AppGithubOAuthService appGithubOAuthService;
+
+    private final AppEmailCodeService appEmailCodeService;
 
     @DubboReference(version = BaseConstant.Version.DUBBO_VERSION_V1, validation = BaseConstant.Dubbo.ENABLE_VALIDATION)
     private LearningLearnerFacade learningLearnerFacade;
@@ -61,6 +69,40 @@ public class AppAuthController {
                 .githubEmail(profile.getEmail())
                 .build());
 
+        return ApiResult.data(login(loginBO));
+    }
+
+    @Operation(summary = "发送邮箱验证码")
+    @PostMapping("/auth/email/code")
+    public ApiResult<Void> sendEmailCode(@RequestBody @Valid AppSendEmailCodeDTO dto) {
+        appEmailCodeService.sendCode(dto.getEmail(), dto.getScene());
+        return ApiResult.success();
+    }
+
+    @Operation(summary = "邮箱验证码登录")
+    @PostMapping("/auth/email/login")
+    public ApiResult<AppAuthLoginVO> emailLogin(@RequestBody @Valid AppEmailAuthDTO dto) {
+        appEmailCodeService.verifyCode(dto.getEmail(), dto.getCode(), AppEmailCodeScene.LOGIN);
+        AppLearnerLoginBO loginBO = learningLearnerFacade.appEmailLogin(
+                io.github.module.learning.model.request.AppEmailLoginDTO.builder()
+                        .email(dto.getEmail())
+                        .build());
+        return ApiResult.data(login(loginBO));
+    }
+
+    @Operation(summary = "邮箱验证码注册")
+    @PostMapping("/auth/email/register")
+    public ApiResult<AppAuthLoginVO> emailRegister(@RequestBody @Valid AppEmailAuthDTO dto) {
+        appEmailCodeService.verifyCode(dto.getEmail(), dto.getCode(), AppEmailCodeScene.REGISTER);
+        AppLearnerLoginBO loginBO = learningLearnerFacade.appEmailRegister(
+                io.github.module.learning.model.request.AppEmailRegisterDTO.builder()
+                        .email(dto.getEmail())
+                        .nickname(dto.getNickname())
+                        .build());
+        return ApiResult.data(login(loginBO));
+    }
+
+    private AppAuthLoginVO login(AppLearnerLoginBO loginBO) {
         UserContext userContext = UserContext.builder()
                 .userId(loginBO.getUserId())
                 .userName(loginBO.getUsername())
@@ -69,7 +111,8 @@ public class AppAuthController {
                 .rolesIds(Set.of())
                 .roles(List.of("LEARNER"))
                 .build();
-        TenantContext tenantContext = loginBO.getTenantContext() == null ? new TenantContext() : loginBO.getTenantContext();
+        TenantContext tenantContext = loginBO.getTenantContext() == null
+                ? new TenantContext() : loginBO.getTenantContext();
 
         UserContextHolder.setUserContext(userContext);
         TenantContextHolder.setTenantContext(tenantContext);
@@ -82,7 +125,7 @@ public class AppAuthController {
             TenantContextHolder.clear();
         }
 
-        return ApiResult.data(AppAuthLoginVO.builder()
+        return AppAuthLoginVO.builder()
                 .tokenName(AppStpUtil.getTokenName())
                 .tokenValue(AppStpUtil.getTokenValue())
                 .userId(loginBO.getUserId())
@@ -90,7 +133,7 @@ public class AppAuthController {
                 .nickname(loginBO.getNickname())
                 .email(loginBO.getEmail())
                 .avatarUrl(loginBO.getAvatarUrl())
-                .build());
+                .build();
     }
 
     @Operation(summary = "登出")

@@ -8,6 +8,9 @@ import io.github.framework.core.constant.BaseConstant;
 import io.github.framework.core.exception.BusinessException;
 import io.github.module.ai.facade.AiModelConfigFacade;
 import io.github.module.ai.model.response.AiModelConfigBO;
+import io.github.module.learning.model.request.AppGoalBriefDTO;
+import io.github.module.learning.model.response.GoalBriefBO;
+import io.github.module.learning.model.response.GoalDraftAssistBO;
 import io.github.module.learning.enums.LearningErrorEnum;
 import io.github.module.learning.service.model.GeneratedLearningMap;
 import io.github.module.learning.service.model.LearningTemplate;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Learning OS AI 编排服务.
@@ -196,6 +200,48 @@ public class LearningAiService {
         return parseOrFallback(prompt, ReflectionSummary.class, fallback);
     }
 
+    public GoalDraftAssistBO assistGoalDraft(String rawIntent,
+                                             AppGoalBriefDTO brief,
+                                             List<String> followUpAnswers) {
+        GoalDraftAssistBO fallback = buildFallbackGoalDraftAssist(rawIntent, brief, followUpAnswers);
+        String prompt = """
+                你是 Learning OS 的 Goal Builder。
+                请把模糊的学习意图整理成结构化 Goal Brief，并输出 JSON：
+                {
+                  "draftBrief": {
+                    "title": "...",
+                    "domain": "...",
+                    "motivation": "...",
+                    "currentLevel": "...",
+                    "desiredOutcome": "...",
+                    "successCriteria": ["..."],
+                    "weeklyLearningMinutes": 240,
+                    "targetWeeks": 6,
+                    "preferredLearningStyle": "...",
+                    "constraints": ["..."],
+                    "tags": ["..."]
+                  },
+                  "followUpQuestions": ["..."],
+                  "builderSummary": "...",
+                  "confidence": 0.72
+                }
+                要求：
+                1. draftBrief 要面向真实学习执行，而不是泛泛总结。
+                2. successCriteria、constraints、tags 最少各给出 1 条，最多 3 条。
+                3. 如果用户信息不足，可以补出保守但可执行的默认项。
+                4. 只返回 JSON，不要返回 Markdown。
+
+                原始意图：%s
+                当前 Brief：%s
+                已有追问回答：%s
+                """.formatted(
+                CharSequenceUtil.nullToEmpty(rawIntent),
+                JSONUtil.toJsonStr(brief),
+                JSONUtil.toJsonStr(CollUtil.emptyIfNull(followUpAnswers))
+        );
+        return parseOrFallback(prompt, GoalDraftAssistBO.class, fallback);
+    }
+
     private int totalMinutes(LearningTemplate template) {
         return template.getNodes().stream()
                 .map(node -> node.getEstimatedMinutes() == null ? 0 : node.getEstimatedMinutes())
@@ -240,5 +286,125 @@ public class LearningAiService {
             }
         }
         return CharSequenceUtil.trim(trimmed);
+    }
+
+    private GoalDraftAssistBO buildFallbackGoalDraftAssist(String rawIntent,
+                                                           AppGoalBriefDTO brief,
+                                                           List<String> followUpAnswers) {
+        String title = firstNonBlank(brief == null ? null : brief.getTitle(), rawIntent, "建立一套可执行的学习目标");
+        String domain = firstNonBlank(brief == null ? null : brief.getDomain(), inferDomainFromIntent(rawIntent), "通用职业成长");
+        String motivation = firstNonBlank(
+                brief == null ? null : brief.getMotivation(),
+                CharSequenceUtil.isBlank(rawIntent) ? null : "我想围绕「" + rawIntent.trim() + "」建立一个更可执行的学习路径。",
+                "希望建立一套更适合自己的学习路径。"
+        );
+        String desiredOutcome = firstNonBlank(
+                brief == null ? null : brief.getDesiredOutcome(),
+                "完成一个可展示的成果，并能向他人解释自己真正学会了什么。"
+        );
+        Integer weeklyMinutes = brief != null && brief.getWeeklyLearningMinutes() != null
+                ? brief.getWeeklyLearningMinutes()
+                : 240;
+        Integer targetWeeks = brief != null && brief.getTargetWeeks() != null
+                ? brief.getTargetWeeks()
+                : 6;
+        GoalBriefBO draftBrief = GoalBriefBO.builder()
+                .title(title)
+                .domain(domain)
+                .motivation(motivation)
+                .currentLevel(firstNonBlank(
+                        brief == null ? null : brief.getCurrentLevel(),
+                        deriveCurrentLevelHint(followUpAnswers),
+                        "有零散了解，但还没有形成系统方法和稳定输出。"
+                ))
+                .desiredOutcome(desiredOutcome)
+                .successCriteria(normalizeList(
+                        brief == null ? null : brief.getSuccessCriteria(),
+                        List.of(
+                                "完成一个真实作品或项目",
+                                "能用自己的话解释关键概念",
+                                "能把学习内容迁移到真实场景"
+                        )
+                ))
+                .weeklyLearningMinutes(weeklyMinutes)
+                .targetWeeks(targetWeeks)
+                .preferredLearningStyle(firstNonBlank(
+                        brief == null ? null : brief.getPreferredLearningStyle(),
+                        deriveLearningStyleHint(followUpAnswers),
+                        "喜欢案例、实战练习、清晰框架和逐步拆解。"
+                ))
+                .constraints(normalizeList(
+                        brief == null ? null : brief.getConstraints(),
+                        List.of("希望学习计划能兼顾工作和生活节奏")
+                ))
+                .tags(normalizeList(brief == null ? null : brief.getTags(), List.of(domain)))
+                .build();
+        return GoalDraftAssistBO.builder()
+                .draftBrief(draftBrief)
+                .followUpQuestions(List.of(
+                        "你最希望这个学习目标最终产出什么可见成果？",
+                        "你目前最卡的是基础理解、实践落地，还是持续执行？",
+                        "你每周稳定能投入多少时间，什么学习方式最适合你？"
+                ))
+                .builderSummary("AI 已先把模糊意图整理成结构化学习目标简报，你可以继续细化后再正式生成学习地图。")
+                .confidence(0.56D)
+                .build();
+    }
+
+    private List<String> normalizeList(List<String> values, List<String> fallback) {
+        List<String> cleaned = CollUtil.emptyIfNull(values).stream()
+                .map(CharSequenceUtil::trim)
+                .filter(CharSequenceUtil::isNotBlank)
+                .distinct()
+                .limit(3)
+                .toList();
+        return cleaned.isEmpty() ? fallback : cleaned;
+    }
+
+    private String inferDomainFromIntent(String intent) {
+        String normalized = CharSequenceUtil.blankToDefault(intent, "").toLowerCase(Locale.ROOT);
+        if (normalized.contains("spring") || normalized.contains("java") || normalized.contains("后端")) {
+            return "后端开发";
+        }
+        if (normalized.contains("产品") || normalized.contains("prd")) {
+            return "产品设计";
+        }
+        if (normalized.contains("英语") || normalized.contains("日语") || normalized.contains("语言")) {
+            return "语言学习";
+        }
+        if (normalized.contains("数据") || normalized.contains("sql") || normalized.contains("分析")) {
+            return "数据分析";
+        }
+        if (normalized.contains("设计") || normalized.contains("ui") || normalized.contains("ux")) {
+            return "设计";
+        }
+        return "通用职业成长";
+    }
+
+    private String deriveCurrentLevelHint(List<String> followUpAnswers) {
+        return CollUtil.emptyIfNull(followUpAnswers).stream()
+                .map(CharSequenceUtil::trim)
+                .filter(CharSequenceUtil::isNotBlank)
+                .filter(answer -> answer.contains("基础") || answer.contains("卡") || answer.contains("不会"))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private String deriveLearningStyleHint(List<String> followUpAnswers) {
+        return CollUtil.emptyIfNull(followUpAnswers).stream()
+                .map(CharSequenceUtil::trim)
+                .filter(CharSequenceUtil::isNotBlank)
+                .filter(answer -> answer.contains("案例") || answer.contains("项目") || answer.contains("练习") || answer.contains("图"))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (CharSequenceUtil.isNotBlank(value)) {
+                return value.trim();
+            }
+        }
+        return null;
     }
 }

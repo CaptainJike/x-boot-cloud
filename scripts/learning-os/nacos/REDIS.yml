@@ -1,8 +1,0 @@
-spring:
-  data:
-    redis:
-      host: ${LEARNING_REDIS_HOST:127.0.0.1}
-      port: ${LEARNING_REDIS_PORT:6379}
-      password: ${LEARNING_REDIS_PASSWORD:}
-      database: ${LEARNING_REDIS_DATABASE:13}
-      timeout: 5s

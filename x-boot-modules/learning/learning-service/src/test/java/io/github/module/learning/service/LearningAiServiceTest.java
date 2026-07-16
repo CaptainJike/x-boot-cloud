@@ -3,6 +3,8 @@ package io.github.module.learning.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.module.ai.facade.AiModelConfigFacade;
 import io.github.module.ai.model.response.AiModelConfigBO;
+import io.github.module.learning.model.request.AppGoalBriefDTO;
+import io.github.module.learning.model.response.GoalDraftAssistBO;
 import io.github.module.learning.service.model.GeneratedLearningMap;
 import io.github.module.learning.service.model.LearningTemplate;
 import io.github.module.learning.service.model.LearningTemplateNode;
@@ -91,6 +93,28 @@ class LearningAiServiceTest {
         ArgumentCaptor<AiModelConfig> configCaptor = ArgumentCaptor.forClass(AiModelConfig.class);
         verify(xBootAiService).chat(anyString(), configCaptor.capture());
         assertThat(configCaptor.getValue().getTimeout()).isEqualTo(Duration.ofSeconds(8));
+    }
+
+    @Test
+    void assistGoalDraftFallsBackToStructuredBriefWhenAiResponseInvalid() {
+        when(aiModelConfigFacade.getDefaultEnabledConfig()).thenReturn(defaultConfig(30L));
+        when(xBootAiService.chat(anyString(), any(AiModelConfig.class))).thenReturn("not-json");
+
+        GoalDraftAssistBO result = learningAiService.assistGoalDraft(
+                "学习 Spring AI 并做一个项目",
+                AppGoalBriefDTO.builder()
+                        .weeklyLearningMinutes(300)
+                        .preferredLearningStyle("喜欢项目练习")
+                        .build(),
+                List.of("希望最后能做出一个 Demo")
+        );
+
+        assertThat(result.getDraftBrief()).isNotNull();
+        assertThat(result.getDraftBrief().getTitle()).contains("学习 Spring AI");
+        assertThat(result.getDraftBrief().getDomain()).isEqualTo("后端开发");
+        assertThat(result.getDraftBrief().getWeeklyLearningMinutes()).isEqualTo(300);
+        assertThat(result.getFollowUpQuestions()).hasSize(3);
+        assertThat(result.getConfidence()).isEqualTo(0.56D);
     }
 
     private AiModelConfigBO defaultConfig(Long timeoutSeconds) {

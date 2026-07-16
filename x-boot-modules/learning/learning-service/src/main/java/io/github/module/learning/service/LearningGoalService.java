@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.github.framework.core.context.UserContextHolder;
-import io.github.framework.core.exception.BusinessException;
 import io.github.module.learning.entity.DailyDigestEntity;
 import io.github.module.learning.entity.LearnerProfileEntity;
 import io.github.module.learning.entity.LearningGoalEntity;
@@ -21,6 +20,8 @@ import io.github.module.learning.mapper.LearningMapNodeMapper;
 import io.github.module.learning.mapper.LearningNodeProgressMapper;
 import io.github.module.learning.mapper.ReflectionEntryMapper;
 import io.github.module.learning.model.request.AppCreateLearningGoalDTO;
+import io.github.module.learning.model.request.AppGoalDraftAssistDTO;
+import io.github.module.learning.model.response.GoalDraftAssistBO;
 import io.github.module.learning.model.response.LearningMapBO;
 import io.github.module.learning.model.response.TodayLearningBO;
 import io.github.module.learning.service.model.GeneratedLearningMap;
@@ -51,13 +52,14 @@ public class LearningGoalService {
     private final ReflectionEntryMapper reflectionEntryMapper;
     private final DailyDigestMapper dailyDigestMapper;
     private final LearningTemplateService learningTemplateService;
+    private final LearningTemplateAssetService learningTemplateAssetService;
     private final LearningAiService learningAiService;
     private final LearningAssembler learningAssembler;
 
     @Transactional(rollbackFor = Exception.class)
     public LearningMapBO createGoal(AppCreateLearningGoalDTO dto) {
         Long userId = requireUserId();
-        LearningTemplate template = learningTemplateService.matchTemplate(dto.getTargetTopic());
+        LearningTemplate template = resolveGoalCreationTemplate(dto, userId);
         GeneratedLearningMap generatedMap = learningAiService.generateLearningMap(
                 dto.getTargetTopic(),
                 dto.getSelfAssessment(),
@@ -95,7 +97,17 @@ public class LearningGoalService {
         }
 
         List<LearningNodeProgressEntity> progressEntities = initProgress(goalEntity, nodeEntities);
+        learningTemplateAssetService.incrementUsageCountIfPresent(dto.getGoalTemplateId(), userId, "GOAL");
+        learningTemplateAssetService.incrementUsageCountIfPresent(dto.getMapTemplateId(), userId, "MAP");
         return learningAssembler.toMapBO(goalEntity, mapEntity, nodeEntities, progressEntities);
+    }
+
+    public GoalDraftAssistBO assistGoalDraft(AppGoalDraftAssistDTO dto) {
+        return learningAiService.assistGoalDraft(
+                dto == null ? null : dto.getRawIntent(),
+                dto == null ? null : dto.getBrief(),
+                dto == null ? null : dto.getFollowUpAnswers()
+        );
     }
 
     public TodayLearningBO getToday() {
@@ -235,6 +247,15 @@ public class LearningGoalService {
         learningNodeProgressMapper.updateById(progressEntity);
     }
 
+    public List<LearningNodeProgressEntity> listProgressByGoalId(Long goalId, Long userId) {
+        return learningNodeProgressMapper.selectList(
+                new QueryWrapper<LearningNodeProgressEntity>()
+                        .lambda()
+                        .eq(LearningNodeProgressEntity::getGoalId, goalId)
+                        .eq(LearningNodeProgressEntity::getUserId, userId)
+        );
+    }
+
     public List<LearningMapNodeEntity> listNodesByGoalId(Long goalId, Long userId) {
         return learningMapNodeMapper.selectList(
                 new QueryWrapper<LearningMapNodeEntity>()
@@ -249,6 +270,14 @@ public class LearningGoalService {
         Long userId = UserContextHolder.getUserId();
         LearningErrorEnum.USER_NOT_LOGGED_IN.assertNotNull(userId);
         return userId;
+    }
+
+    private LearningTemplate resolveGoalCreationTemplate(AppCreateLearningGoalDTO dto, Long userId) {
+        LearningTemplate customMapTemplate = learningTemplateAssetService.resolveMapTemplateSeed(dto.getMapTemplateId(), userId);
+        if (customMapTemplate != null && CollUtil.isNotEmpty(customMapTemplate.getNodes())) {
+            return customMapTemplate;
+        }
+        return learningTemplateService.matchTemplate(dto.getTargetTopic());
     }
 
     private void upsertLearnerProfile(Long userId, AppCreateLearningGoalDTO dto) {

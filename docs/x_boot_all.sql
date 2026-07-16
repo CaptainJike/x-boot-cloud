@@ -987,14 +987,15 @@ CREATE TABLE `learner_account` (
                                    `learner_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '学习者编号',
                                    `nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '昵称',
                                    `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态',
-                                   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '邮箱',
+                                   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '邮箱',
                                    `phone_no` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '手机号',
                                    `last_login_at` datetime DEFAULT NULL COMMENT '最后登录时刻',
                                    `avatar_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '头像URL',
-                                   `github_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'GitHub 用户ID',
-                                   `github_login` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'GitHub 登录名',
+                                   `github_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT 'GitHub 用户ID',
+                                   `github_login` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT 'GitHub 登录名',
                                    PRIMARY KEY (`id`) USING BTREE,
                                    UNIQUE KEY `uk_learner_account_no` (`learner_no`) USING BTREE,
+                                   UNIQUE KEY `uk_learner_account_email` (`email`) USING BTREE,
                                    UNIQUE KEY `uk_learner_account_github_user` (`github_user_id`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC COMMENT = '学习者账号';
 
@@ -1222,3 +1223,31 @@ CREATE TABLE `growth_snapshot` (
                                    PRIMARY KEY (`id`) USING BTREE,
                                    KEY `idx_growth_snapshot_user_date` (`tenant_id`, `user_id`, `snapshot_date`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC COMMENT = '成长快照';
+
+-- x_boot.learning_event definition
+
+CREATE TABLE `learning_event` (
+                                  `id` bigint NOT NULL COMMENT '主键ID',
+                                  `tenant_id` bigint DEFAULT NULL COMMENT '租户ID',
+                                  `revision` bigint NOT NULL DEFAULT '1' COMMENT '乐观锁',
+                                  `del_flag` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '逻辑删除标识',
+                                  `created_at` datetime NOT NULL COMMENT '创建时刻',
+                                  `created_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '创建者',
+                                  `updated_at` datetime NOT NULL COMMENT '更新时刻',
+                                  `updated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '更新者',
+                                  `user_id` bigint NOT NULL COMMENT '用户ID',
+                                  `goal_id` bigint DEFAULT NULL COMMENT '目标ID',
+                                  `map_node_id` bigint DEFAULT NULL COMMENT '地图节点ID',
+                                  `event_source` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '事件来源',
+                                  `event_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '事件细分类型',
+                                  `event_status` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '事件状态',
+                                  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '标题',
+                                  `summary` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '摘要',
+                                  `related_entity_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '关联实体类型',
+                                  `related_entity_id` bigint DEFAULT NULL COMMENT '关联实体ID',
+                                  `event_at` datetime NOT NULL COMMENT '事件发生时刻',
+                                  `payload_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '事件载荷 JSON',
+                                  PRIMARY KEY (`id`) USING BTREE,
+                                  KEY `idx_learning_event_user_time` (`tenant_id`, `user_id`, `event_at`) USING BTREE,
+                                  KEY `idx_learning_event_goal_time` (`tenant_id`, `user_id`, `goal_id`, `event_at`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC COMMENT = '统一学习事件';
